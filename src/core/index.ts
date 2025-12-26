@@ -8,4 +8,5 @@ export {
   type HygieneQueryResult,
   type HygieneSuccessResult,
   type HygieneErrorResult,
+  type HygieneQueryServices,
 } from './restaurant-hygiene.core.js';

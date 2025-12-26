@@ -7,10 +7,24 @@
 import { Module } from '@nestjs/common';
 import { HygieneController } from './hygiene.controller.js';
 import { HygieneService } from './hygiene.service.js';
+import {
+  ApiClientProvider,
+  HygieneGradeServiceProvider,
+  ViolationServiceProvider,
+  CacheServiceProvider,
+  KakaoMapServiceProvider,
+} from '../../providers/index.js';
 
 @Module({
   controllers: [HygieneController],
-  providers: [HygieneService],
+  providers: [
+    HygieneService,
+    ApiClientProvider,
+    HygieneGradeServiceProvider,
+    ViolationServiceProvider,
+    CacheServiceProvider,
+    KakaoMapServiceProvider,
+  ],
   exports: [HygieneService],
 })
 export class HygieneModule {}

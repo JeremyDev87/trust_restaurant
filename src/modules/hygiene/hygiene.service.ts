@@ -4,11 +4,22 @@
  * 코어 비즈니스 로직을 NestJS 서비스로 래핑
  */
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import {
   queryRestaurantHygiene,
   type HygieneQueryParams,
+  type HygieneQueryServices,
 } from '../../core/index.js';
+import {
+  HYGIENE_GRADE_SERVICE_TOKEN,
+  VIOLATION_SERVICE_TOKEN,
+  CACHE_SERVICE_TOKEN,
+  KAKAO_MAP_SERVICE_TOKEN,
+} from '../../providers/index.js';
+import type { HygieneGradeService } from '../../services/hygiene-grade.service.js';
+import type { ViolationService } from '../../services/violation.service.js';
+import type { CacheService } from '../../services/cache.service.js';
+import type { KakaoMapService } from '../../services/kakao-map.service.js';
 import type { RestaurantHygieneResult } from '../../types/domain/restaurant.types.js';
 
 /**
@@ -33,11 +44,31 @@ export interface HygieneApiResponse {
 
 @Injectable()
 export class HygieneService {
+  private readonly services: HygieneQueryServices;
+
+  constructor(
+    @Inject(HYGIENE_GRADE_SERVICE_TOKEN)
+    hygieneGradeService: HygieneGradeService,
+    @Inject(VIOLATION_SERVICE_TOKEN)
+    violationService: ViolationService,
+    @Inject(CACHE_SERVICE_TOKEN)
+    cacheService: CacheService,
+    @Inject(KAKAO_MAP_SERVICE_TOKEN)
+    kakaoMapService: KakaoMapService,
+  ) {
+    this.services = {
+      hygieneGradeService,
+      violationService,
+      cacheService,
+      kakaoMapService,
+    };
+  }
+
   /**
    * 식당 위생 정보 조회
    */
   async query(params: HygieneQueryParams): Promise<HygieneApiResponse> {
-    const result = await queryRestaurantHygiene(params);
+    const result = await queryRestaurantHygiene(params, this.services);
 
     if (result.success) {
       return {

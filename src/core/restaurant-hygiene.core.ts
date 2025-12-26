@@ -9,13 +9,28 @@
  * 3. 결과 병합하여 반환
  */
 
-import { createApiClient, ApiError } from '../utils/api-client.js';
-import { createHygieneGradeService } from '../services/hygiene-grade.service.js';
-import { createViolationService } from '../services/violation.service.js';
+import {
+  createApiClient,
+  ApiError,
+  type FoodSafetyApiClient,
+} from '../utils/api-client.js';
+import {
+  createHygieneGradeService,
+  type HygieneGradeService,
+} from '../services/hygiene-grade.service.js';
+import {
+  createViolationService,
+  type ViolationService,
+} from '../services/violation.service.js';
 import {
   createKakaoMapService,
   KakaoApiError,
+  type KakaoMapService,
 } from '../services/kakao-map.service.js';
+import {
+  createCacheService,
+  type CacheService,
+} from '../services/cache.service.js';
 import { formatSummary } from '../formatters/index.js';
 import type {
   RestaurantHygieneResult,
@@ -23,6 +38,17 @@ import type {
   ViolationHistory,
 } from '../types/domain/restaurant.types.js';
 import type { RestaurantInfo } from '../types/kakao-map.types.js';
+
+/**
+ * 서비스 의존성 주입 옵션
+ */
+export interface HygieneQueryServices {
+  kakaoMapService?: KakaoMapService;
+  hygieneGradeService?: HygieneGradeService;
+  violationService?: ViolationService;
+  cacheService?: CacheService;
+  apiClient?: FoodSafetyApiClient;
+}
 
 /**
  * 조회 요청 파라미터
@@ -151,19 +177,49 @@ function toRestaurantCandidates(
 }
 
 /**
+ * 서비스 인스턴스 생성 또는 주입된 서비스 사용
+ */
+function getServices(injected?: HygieneQueryServices) {
+  const cacheService = injected?.cacheService || createCacheService();
+  const kakaoMapService =
+    injected?.kakaoMapService || createKakaoMapService(undefined, cacheService);
+  const apiClient = injected?.apiClient || createApiClient();
+  const hygieneGradeService =
+    injected?.hygieneGradeService || createHygieneGradeService(apiClient);
+  const violationService =
+    injected?.violationService || createViolationService(apiClient);
+
+  return {
+    cacheService,
+    kakaoMapService,
+    apiClient,
+    hygieneGradeService,
+    violationService,
+  };
+}
+
+/**
  * 식당 위생 정보 조회
  *
  * @param params - 조회 파라미터
+ * @param services - 선택적 서비스 의존성 주입 (캐싱 지원)
  * @returns 조회 결과
  */
 export async function queryRestaurantHygiene(
   params: HygieneQueryParams,
+  services?: HygieneQueryServices,
 ): Promise<HygieneQueryResult> {
   const { restaurant_name, region, include_history = true } = params;
 
+  // 서비스 인스턴스 생성 또는 주입된 서비스 사용
+  const {
+    kakaoMapService,
+    hygieneGradeService: hygieneService,
+    violationService,
+  } = getServices(services);
+
   try {
     // Step 1: 카카오맵으로 식당 검색
-    const kakaoMapService = createKakaoMapService();
     const kakaoResults = await kakaoMapService.searchRestaurant(
       restaurant_name,
       region,
@@ -171,10 +227,12 @@ export async function queryRestaurantHygiene(
 
     // 카카오맵 검색 결과가 없는 경우 - 기존 식약처 API 직접 검색으로 폴백
     if (kakaoResults.length === 0) {
-      return await searchFoodSafetyDirectly(
+      return await searchFoodSafetyDirectlyWithServices(
         restaurant_name,
         region,
         include_history,
+        hygieneService,
+        violationService,
       );
     }
 
@@ -193,10 +251,6 @@ export async function queryRestaurantHygiene(
     // Step 2: 단일 결과 - 식약처 API로 위생등급 조회
     const place = kakaoResults[0];
     const addressRegion = extractRegionFromAddress(place.address);
-
-    const apiClient = createApiClient();
-    const hygieneService = createHygieneGradeService(apiClient);
-    const violationService = createViolationService(apiClient);
 
     // 상호명과 주소로 위생등급 검색
     const hygieneResult = await hygieneService.findExactMatch(
@@ -286,10 +340,12 @@ export async function queryRestaurantHygiene(
     if (error instanceof KakaoApiError) {
       // 카카오 API 오류 시 기존 방식으로 폴백
       console.error('Kakao API error, falling back to direct search:', error);
-      return await searchFoodSafetyDirectly(
+      return await searchFoodSafetyDirectlyWithServices(
         restaurant_name,
         region,
         include_history,
+        hygieneService,
+        violationService,
       );
     }
 
@@ -318,15 +374,13 @@ export async function queryRestaurantHygiene(
  *
  * 카카오맵 검색이 실패하거나 결과가 없을 때 사용
  */
-async function searchFoodSafetyDirectly(
+async function searchFoodSafetyDirectlyWithServices(
   restaurantName: string,
   region: string,
   includeHistory: boolean,
+  hygieneService: HygieneGradeService,
+  violationService: ViolationService,
 ): Promise<HygieneQueryResult> {
-  const apiClient = createApiClient();
-  const hygieneService = createHygieneGradeService(apiClient);
-  const violationService = createViolationService(apiClient);
-
   // 위생등급 조회
   const hygieneResult = await hygieneService.findExactMatch(
     restaurantName,
