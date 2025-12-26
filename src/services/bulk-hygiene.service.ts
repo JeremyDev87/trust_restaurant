@@ -15,6 +15,7 @@ import type { HygieneGradeItem } from './hygiene-grade.service.js';
 import { HygieneGradeService } from './hygiene-grade.service.js';
 import { ViolationService } from './violation.service.js';
 import { parseAddress } from '../utils/address-matcher.js';
+import { BULK_CONFIG } from '../config/constants.js';
 
 /**
  * 일괄 위생정보 조회 서비스 인터페이스
@@ -152,7 +153,7 @@ export class BulkHygieneServiceImpl implements BulkHygieneService {
     let totalChecked = 0;
 
     // 배치 처리 (API Rate Limit 고려)
-    const batchSize = 5;
+    const batchSize = BULK_CONFIG.BATCH_SIZE;
     for (
       let i = 0;
       i < restaurants.length && results.length < limit;
@@ -208,7 +209,9 @@ export class BulkHygieneServiceImpl implements BulkHygieneService {
 
       // Rate Limit 방지를 위한 딜레이 (배치 간)
       if (i + batchSize < restaurants.length && results.length < limit) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve =>
+          setTimeout(resolve, BULK_CONFIG.BATCH_DELAY_MS),
+        );
       }
     }
 

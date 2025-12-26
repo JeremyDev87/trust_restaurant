@@ -14,6 +14,12 @@ export const KAKAO_API_CONFIG = {
   BASE_URL: 'https://dapi.kakao.com/v2/local/search/keyword.json',
   TIMEOUT: 5000,
   MAX_RESULTS: 5,
+  /** 식당 검색 시 페이지당 결과 수 */
+  SEARCH_PAGE_SIZE: 5,
+  /** 지역 검색 시 페이지당 결과 수 */
+  AREA_PAGE_SIZE: 15,
+  /** 지역 검색 최대 페이지 수 */
+  MAX_PAGES: 3,
   CATEGORIES: {
     RESTAURANT: 'FD6',
     CAFE: 'CE7',
@@ -59,4 +65,14 @@ export const ERROR_MESSAGES = {
  */
 export const VIOLATION_CONFIG = {
   MAX_RECENT_ITEMS: 3,
+} as const;
+
+/**
+ * 일괄 조회 관련 상수
+ */
+export const BULK_CONFIG = {
+  /** 배치당 식당 수 */
+  BATCH_SIZE: 5,
+  /** 배치 간 딜레이 (ms) - Rate Limit 방지 */
+  BATCH_DELAY_MS: 100,
 } as const;
