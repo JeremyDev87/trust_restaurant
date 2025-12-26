@@ -23,12 +23,24 @@
   },
   "keywords": [
     "mcp",
+    "model-context-protocol",
     "food-safety",
     "hygiene",
-    "restaurant"
+    "restaurant",
+    "korea",
+    "claude",
+    "ai"
   ],
-  "author": "",
+  "author": "Clean Plate MCP Contributors",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/clean-plate-mcp.git"
+  },
+  "homepage": "https://github.com/username/clean-plate-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/username/clean-plate-mcp/issues"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "@nestjs/common": "^11.1.10",
