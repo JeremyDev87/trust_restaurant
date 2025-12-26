@@ -12,17 +12,8 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { z } from 'zod';
 import { HygieneService } from './hygiene.service.js';
-
-/**
- * 요청 스키마
- */
-const RequestSchema = z.object({
-  restaurant_name: z.string().min(1, '식당명을 입력해주세요'),
-  region: z.string().min(1, '지역명을 입력해주세요'),
-  include_history: z.boolean().optional().default(true),
-});
+import { HygieneRequestSchema, validateRequest } from '../../utils/index.js';
 
 @Controller('api/restaurant-hygiene')
 export class HygieneController {
@@ -31,25 +22,21 @@ export class HygieneController {
   @Post()
   @HttpCode(HttpStatus.OK)
   async queryHygiene(@Body() body: unknown) {
-    // 요청 검증
-    const parseResult = RequestSchema.safeParse(body);
+    // 요청 검증 (정규화 + 보안 검사 포함)
+    const validationResult = validateRequest(HygieneRequestSchema, body);
 
-    if (!parseResult.success) {
-      const errorMessage = parseResult.error.errors
-        .map(e => e.message)
-        .join(', ');
-
+    if (!validationResult.success) {
       throw new HttpException(
         {
           success: false,
-          error: { code: 'INVALID_REQUEST', message: errorMessage },
+          error: validationResult.error,
         },
         HttpStatus.BAD_REQUEST,
       );
     }
 
     // 서비스 호출
-    const result = await this.hygieneService.query(parseResult.data);
+    const result = await this.hygieneService.query(validationResult.data);
 
     if (!result.success && result.statusCode) {
       throw new HttpException(

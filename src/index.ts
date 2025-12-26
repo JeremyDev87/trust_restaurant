@@ -12,6 +12,12 @@ import {
   createCacheService,
 } from './services/index.js';
 import { createApiClient } from './utils/api-client.js';
+import {
+  HygieneRequestSchema,
+  AreaSearchRequestSchema,
+  BulkHygieneRequestSchema,
+  validateRequest,
+} from './utils/index.js';
 
 // 서비스 인스턴스 생성 (캐시 포함)
 const cacheService = createCacheService();
@@ -87,11 +93,21 @@ server.registerTool(
     },
   },
   async ({ restaurant_name, region, include_history }) => {
-    const result = await queryRestaurantHygiene({
+    // 입력 검증 (정규화 + 보안 검사)
+    const validation = validateRequest(HygieneRequestSchema, {
       restaurant_name,
       region,
       include_history,
     });
+
+    if (!validation.success) {
+      return {
+        content: [{ type: 'text' as const, text: validation.error.message }],
+        isError: true,
+      };
+    }
+
+    const result = await queryRestaurantHygiene(validation.data);
 
     if (!result.success) {
       // 에러 응답
@@ -152,7 +168,23 @@ server.registerTool(
     },
   },
   async ({ area, category }) => {
-    const result = await kakaoMapService.searchByArea(area, category);
+    // 입력 검증 (정규화 + 보안 검사)
+    const validation = validateRequest(AreaSearchRequestSchema, {
+      area,
+      category,
+    });
+
+    if (!validation.success) {
+      return {
+        content: [{ type: 'text' as const, text: validation.error.message }],
+        isError: true,
+      };
+    }
+
+    const result = await kakaoMapService.searchByArea(
+      validation.data.area,
+      validation.data.category,
+    );
 
     if (result.status === 'not_found') {
       return {
@@ -237,8 +269,22 @@ server.registerTool(
     },
   },
   async ({ restaurants, filter, limit }) => {
+    // 입력 검증 (정규화 + 보안 검사)
+    const validation = validateRequest(BulkHygieneRequestSchema, {
+      restaurants,
+      filter,
+      limit,
+    });
+
+    if (!validation.success) {
+      return {
+        content: [{ type: 'text' as const, text: validation.error.message }],
+        isError: true,
+      };
+    }
+
     // RestaurantInfo 형태로 변환
-    const restaurantInfos = restaurants.map((r, i) => ({
+    const restaurantInfos = validation.data.restaurants.map((r, i) => ({
       id: String(i),
       name: r.name,
       address: r.address,
@@ -251,8 +297,8 @@ server.registerTool(
 
     const result = await bulkHygieneService.getBulkHygieneInfo(
       restaurantInfos,
-      filter,
-      limit,
+      validation.data.filter,
+      validation.data.limit,
     );
 
     if (result.matchedCount === 0) {
@@ -267,7 +313,7 @@ server.registerTool(
         content: [
           {
             type: 'text' as const,
-            text: `조회한 ${result.totalChecked}개 식당 중 조건에 맞는 ${filterDescriptions[filter || 'all']}을 찾지 못했습니다.`,
+            text: `조회한 ${result.totalChecked}개 식당 중 조건에 맞는 ${filterDescriptions[validation.data.filter || 'all']}을 찾지 못했습니다.`,
           },
         ],
       };
