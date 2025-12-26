@@ -6,10 +6,11 @@
 
 import type { C004Response, C004Row } from '../types/api/c004.types.js';
 import type { HygieneGrade } from '../types/domain/restaurant.types.js';
-import { FoodSafetyApiClient, ApiError } from '../utils/api-client.js';
+import { FoodSafetyApiClient } from '../utils/api-client.js';
 import { matchName, matchAddress } from '../utils/address-matcher.js';
 import { withCache, withCacheNullable } from '../utils/cache-wrapper.js';
 import { formatDate } from '../utils/date-formatter.js';
+import { isNoDataError } from '../utils/error-handler.js';
 import { SERVICE_IDS, HYGIENE_GRADE_MAP } from '../config/constants.js';
 import {
   type CacheService,
@@ -126,7 +127,7 @@ export class HygieneGradeService {
           };
         } catch (error) {
           // INFO-200 (데이터 없음)은 빈 결과로 처리
-          if (error instanceof ApiError && error.code === 'INFO-200') {
+          if (isNoDataError(error)) {
             return { items: [], totalCount: 0 };
           }
           throw error;

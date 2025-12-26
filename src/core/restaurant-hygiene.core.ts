@@ -11,9 +11,14 @@
 
 import {
   createApiClient,
-  ApiError,
   type FoodSafetyApiClient,
 } from '../utils/api-client.js';
+import {
+  isApiError,
+  isKakaoApiError,
+  formatApiErrorMessage,
+  formatUnknownErrorMessage,
+} from '../utils/error-handler.js';
 import {
   createHygieneGradeService,
   type HygieneGradeService,
@@ -24,7 +29,6 @@ import {
 } from '../services/violation.service.js';
 import {
   createKakaoMapService,
-  KakaoApiError,
   type KakaoMapService,
 } from '../services/kakao-map.service.js';
 import {
@@ -140,12 +144,12 @@ async function fetchViolationsIfNeeded(
  * 에러를 HygieneErrorResult로 변환
  */
 function mapQueryError(error: unknown): HygieneErrorResult {
-  if (error instanceof ApiError) {
+  if (isApiError(error)) {
     return {
       success: false,
       error: {
         code: 'API_ERROR',
-        message: `API 오류가 발생했습니다: ${error.message} (코드: ${error.code})`,
+        message: formatApiErrorMessage(error),
       },
     };
   }
@@ -154,7 +158,7 @@ function mapQueryError(error: unknown): HygieneErrorResult {
     success: false,
     error: {
       code: 'UNKNOWN_ERROR',
-      message: `알 수 없는 오류가 발생했습니다: ${error instanceof Error ? error.message : String(error)}`,
+      message: formatUnknownErrorMessage(error),
     },
   };
 }
@@ -376,7 +380,7 @@ export async function queryRestaurantHygiene(
     );
   } catch (error) {
     // 카카오 API 오류 시 기존 방식으로 폴백
-    if (error instanceof KakaoApiError) {
+    if (isKakaoApiError(error)) {
       console.error('Kakao API error, falling back to direct search:', error);
       return await searchFoodSafetyDirectlyWithServices(
         restaurant_name,

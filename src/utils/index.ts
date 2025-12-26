@@ -46,3 +46,20 @@ export {
 } from './cache-wrapper.js';
 
 export { formatDate } from './date-formatter.js';
+
+export {
+  API_ERROR_CODES,
+  KAKAO_ERROR_CODES,
+  QUERY_ERROR_CODES,
+  isApiError,
+  isKakaoApiError,
+  getErrorMessage,
+  getErrorCode,
+  formatApiErrorMessage,
+  formatKakaoErrorMessage,
+  formatUnknownErrorMessage,
+  toUserFriendlyMessage,
+  isNoDataError,
+  isNetworkError,
+  type QueryErrorCode,
+} from './error-handler.js';
