@@ -4,6 +4,8 @@
  * @see https://www.foodsafetykorea.go.kr/api/openApiInfo.do?menu_grp=MENU_GRP31&menu_no=661&show_cnt=10&start_idx=1&svc_no=C004
  */
 
+import { ApiResultBase, API_RESULT_CODES } from './common.types.js';
+
 /**
  * C004 API 응답 전체 구조
  */
@@ -19,14 +21,9 @@ export interface C004Response {
 }
 
 /**
- * C004 API 결과 코드
+ * C004 API 결과 코드 (ApiResultBase 확장)
  */
-export interface C004Result {
-  /** 결과 메시지 */
-  MSG: string;
-  /** 결과 코드 (INFO-000: 정상) */
-  CODE: string;
-}
+export type C004Result = ApiResultBase;
 
 /**
  * C004 API 개별 데이터 행
@@ -76,12 +73,7 @@ export interface C004Row {
 export type HygieneGradeLevel = '매우우수' | '우수' | '좋음';
 
 /**
- * C004 API 에러 코드
+ * C004 API 에러 코드 (공통 코드 re-export)
+ * @deprecated API_RESULT_CODES를 직접 사용하세요
  */
-export const C004_ERROR_CODES = {
-  SUCCESS: 'INFO-000',
-  NO_DATA: 'INFO-200',
-  AUTH_ERROR: 'ERROR-300',
-  PARAM_ERROR: 'ERROR-310',
-  SERVICE_ERROR: 'ERROR-500',
-} as const;
+export const C004_ERROR_CODES = API_RESULT_CODES;

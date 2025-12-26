@@ -4,6 +4,8 @@
  * @see https://www.foodsafetykorea.go.kr/api/openApiInfo.do?menu_grp=MENU_GRP31&menu_no=661&show_cnt=10&start_idx=1&svc_no=I2630
  */
 
+import { ApiResultBase, API_RESULT_CODES } from './common.types.js';
+
 /**
  * I2630 API 응답 전체 구조
  */
@@ -19,14 +21,9 @@ export interface I2630Response {
 }
 
 /**
- * I2630 API 결과 코드
+ * I2630 API 결과 코드 (ApiResultBase 확장)
  */
-export interface I2630Result {
-  /** 결과 메시지 */
-  MSG: string;
-  /** 결과 코드 (INFO-000: 정상) */
-  CODE: string;
-}
+export type I2630Result = ApiResultBase;
 
 /**
  * I2630 API 개별 데이터 행
@@ -81,12 +78,7 @@ export type ViolationType =
   | string; // 기타 유형 허용
 
 /**
- * I2630 API 에러 코드
+ * I2630 API 에러 코드 (공통 코드 re-export)
+ * @deprecated API_RESULT_CODES를 직접 사용하세요
  */
-export const I2630_ERROR_CODES = {
-  SUCCESS: 'INFO-000',
-  NO_DATA: 'INFO-200',
-  AUTH_ERROR: 'ERROR-300',
-  PARAM_ERROR: 'ERROR-310',
-  SERVICE_ERROR: 'ERROR-500',
-} as const;
+export const I2630_ERROR_CODES = API_RESULT_CODES;

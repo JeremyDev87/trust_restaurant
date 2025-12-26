@@ -3,19 +3,16 @@
  */
 
 import type { RestaurantInfo } from './kakao-map.types.js';
-import type { ViolationHistory } from './domain/restaurant.types.js';
+import type {
+  ViolationHistory,
+  HygieneGrade,
+} from './domain/restaurant.types.js';
 
 /**
- * 위생등급 정보 (간소화)
+ * 위생등급 정보 (HygieneGrade의 별칭, 하위 호환성 유지)
+ * @deprecated HygieneGrade를 직접 사용하세요
  */
-export interface HygieneGradeInfo {
-  has_grade: boolean;
-  grade: 'AAA' | 'AA' | 'A' | null;
-  grade_label: string | null;
-  grade_date: string | null;
-  valid_until: string | null;
-  stars: 0 | 1 | 2 | 3;
-}
+export type HygieneGradeInfo = HygieneGrade;
 
 /**
  * 지역 검색 상태
@@ -51,7 +48,7 @@ export interface HygieneGradeItem {
   address: string;
   licenseNo: string;
   businessType: string;
-  hygieneGrade: HygieneGradeInfo;
+  hygieneGrade: HygieneGrade;
 }
 
 /**
