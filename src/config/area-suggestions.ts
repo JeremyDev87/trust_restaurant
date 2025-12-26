@@ -35,12 +35,7 @@ export const AREA_SUGGESTIONS: Record<string, string[]> = {
  * AREA_SUGGESTIONS에 없는 지역의 경우 사용
  */
 export function getDefaultSuggestions(area: string): string[] {
-  return [
-    `${area} 역 근처`,
-    `${area} 중심가`,
-    `${area} 동쪽`,
-    `${area} 서쪽`,
-  ];
+  return [`${area} 역 근처`, `${area} 중심가`, `${area} 동쪽`, `${area} 서쪽`];
 }
 
 /**

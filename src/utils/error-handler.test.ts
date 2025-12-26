@@ -161,12 +161,16 @@ describe('error-handler', () => {
 
     it('NETWORK_ERROR에 친화적 메시지를 반환한다', () => {
       const error = new ApiError('Network', 'NETWORK_ERROR');
-      expect(toUserFriendlyMessage(error)).toBe('네트워크 연결을 확인해주세요.');
+      expect(toUserFriendlyMessage(error)).toBe(
+        '네트워크 연결을 확인해주세요.',
+      );
     });
 
     it('NO_API_KEY 에러에 친화적 메시지를 반환한다', () => {
       const error = new KakaoApiError('No key', 'NO_API_KEY');
-      expect(toUserFriendlyMessage(error)).toBe('카카오 API 설정이 필요합니다.');
+      expect(toUserFriendlyMessage(error)).toBe(
+        '카카오 API 설정이 필요합니다.',
+      );
     });
 
     it('기타 ApiError는 기본 포맷을 사용한다', () => {

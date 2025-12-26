@@ -289,7 +289,6 @@ export class KakaoMapApiClient implements KakaoMapService {
     }
   }
 
-
   /**
    * 지역 내 식당/카페 탐색
    *
@@ -342,8 +341,7 @@ export class KakaoMapApiClient implements KakaoMapService {
           ...restaurantResult.places,
           ...cafeResult.places,
         ]);
-        const totalCount =
-          restaurantResult.totalCount + cafeResult.totalCount;
+        const totalCount = restaurantResult.totalCount + cafeResult.totalCount;
 
         // 결과 없음
         if (totalCount === 0) {

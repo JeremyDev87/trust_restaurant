@@ -46,7 +46,7 @@ async function getApp(): Promise<Express> {
  */
 export default async function handler(
   req: VercelRequest,
-  res: VercelResponse
+  res: VercelResponse,
 ): Promise<void> {
   const app = await getApp();
   app(req, res);

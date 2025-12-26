@@ -112,7 +112,7 @@ describe('Restaurant Hygiene Integration', () => {
 
       const result = await violationService.getViolationsForRestaurant(
         '스타벅스 강남역점',
-        '강남구'
+        '강남구',
       );
 
       expect(result.total_count).toBe(0);
@@ -130,7 +130,7 @@ describe('Restaurant Hygiene Integration', () => {
 
       const result = await violationService.getViolationsForRestaurant(
         '문제있는 식당',
-        '종로구'
+        '종로구',
       );
 
       expect(result.total_count).toBe(1);
@@ -162,7 +162,7 @@ describe('Restaurant Hygiene Integration', () => {
 
       const result = await hygieneService.findExactMatch(
         '존재하지않는식당',
-        '강남구'
+        '강남구',
       );
 
       expect(result).toBeNull();
@@ -210,7 +210,10 @@ describe('Restaurant Hygiene Integration', () => {
         }),
       } as Response);
 
-      const result = await hygieneService.searchByName('맛있는 마라탕', '강남구');
+      const result = await hygieneService.searchByName(
+        '맛있는 마라탕',
+        '강남구',
+      );
 
       expect(result.totalCount).toBe(3);
       expect(result.items).toHaveLength(3);

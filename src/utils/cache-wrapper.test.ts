@@ -67,7 +67,10 @@ describe('withCache', () => {
       const freshData = { data: 'fresh' };
       const fetcher = vi.fn().mockResolvedValue(freshData);
 
-      await withCache({ cache: mockCache, key: 'test-key', ttl: 3600 }, fetcher);
+      await withCache(
+        { cache: mockCache, key: 'test-key', ttl: 3600 },
+        fetcher,
+      );
 
       expect(mockCache.set).toHaveBeenCalledWith('test-key', freshData, 3600);
     });
