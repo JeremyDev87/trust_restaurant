@@ -21,7 +21,8 @@ export interface HygieneApiResponse {
     candidates?: Array<{
       name: string;
       address: string;
-      grade: string;
+      category?: string;
+      grade?: string;
     }>;
   };
   statusCode?: number;

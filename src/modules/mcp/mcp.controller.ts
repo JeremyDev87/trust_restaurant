@@ -94,7 +94,10 @@ function createMcpServer(): McpServer {
           result.error.candidates
         ) {
           const candidateList = result.error.candidates
-            .map((c, i) => `${i + 1}. ${c.name} - ${c.address} (${c.grade})`)
+            .map((c, i) => {
+              const info = c.grade ? `등급: ${c.grade}` : c.category || '';
+              return `${i + 1}. ${c.name} - ${c.address}${info ? ` (${info})` : ''}`;
+            })
             .join('\n');
           errorText = `${result.error.message}\n\n${candidateList}`;
         }

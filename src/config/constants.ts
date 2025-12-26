@@ -1,10 +1,23 @@
 /**
- * API 관련 상수
+ * 식약처 API 관련 상수
  */
 export const API_CONFIG = {
   BASE_URL: 'http://openapi.foodsafetykorea.go.kr/api',
   TIMEOUT: 10000,
   MAX_RESULTS: 100,
+} as const;
+
+/**
+ * 카카오맵 API 관련 상수
+ */
+export const KAKAO_API_CONFIG = {
+  BASE_URL: 'https://dapi.kakao.com/v2/local/search/keyword.json',
+  TIMEOUT: 5000,
+  MAX_RESULTS: 5,
+  CATEGORIES: {
+    RESTAURANT: 'FD6',
+    CAFE: 'CE7',
+  },
 } as const;
 
 /**
@@ -31,8 +44,11 @@ export const HYGIENE_GRADE_MAP = {
 export const ERROR_MESSAGES = {
   NOT_FOUND: '해당 조건으로 식당을 찾을 수 없습니다. 식당명이나 지역을 다시 확인해주세요.',
   API_ERROR: '현재 식약처 데이터를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.',
+  KAKAO_API_ERROR: '카카오맵 검색에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  KAKAO_NOT_FOUND: '해당 지역에서 식당을 찾을 수 없습니다. 식당명이나 지역을 다시 확인해주세요.',
   MISSING_RESTAURANT_NAME: '식당 이름을 알려주세요.',
   MISSING_REGION: '어느 지역의 식당인지 알려주시겠어요?',
+  HYGIENE_NOT_REGISTERED: '이 식당은 위생등급이 아직 등록되지 않았습니다.',
 } as const;
 
 /**

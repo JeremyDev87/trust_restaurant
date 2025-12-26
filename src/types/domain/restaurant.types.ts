@@ -26,6 +26,8 @@ export interface Restaurant {
   license_no?: string;
   /** 전화번호 (선택) */
   phone?: string;
+  /** 카테고리 (카카오맵 카테고리, 선택) */
+  category?: string;
 }
 
 /**

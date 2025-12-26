@@ -6,7 +6,7 @@
 
 import type { C004Response, C004Row } from '../types/api/c004.types.js';
 import type { HygieneGrade } from '../types/domain/restaurant.types.js';
-import { FoodSafetyApiClient } from '../utils/api-client.js';
+import { FoodSafetyApiClient, ApiError } from '../utils/api-client.js';
 import { matchName, matchAddress } from '../utils/address-matcher.js';
 import { SERVICE_IDS, HYGIENE_GRADE_MAP } from '../config/constants.js';
 
@@ -96,22 +96,30 @@ export class HygieneGradeService {
     name: string,
     region?: string
   ): Promise<HygieneGradeSearchResult> {
-    const response = await this.client.fetch<C004Response>({
-      serviceId: SERVICE_IDS.HYGIENE_GRADE,
-      params: { UPSO_NM: name },
-    });
+    try {
+      const response = await this.client.fetch<C004Response>({
+        serviceId: SERVICE_IDS.HYGIENE_GRADE,
+        params: { UPSO_NM: name },
+      });
 
-    const rows = response.C004?.row || [];
+      const rows = response.C004?.row || [];
 
-    // 지역 필터링 (클라이언트 사이드)
-    const filtered = region
-      ? rows.filter((row) => matchAddress(row.ADDR, region))
-      : rows;
+      // 지역 필터링 (클라이언트 사이드)
+      const filtered = region
+        ? rows.filter((row) => matchAddress(row.ADDR, region))
+        : rows;
 
-    return {
-      items: filtered.map(transformRow),
-      totalCount: filtered.length,
-    };
+      return {
+        items: filtered.map(transformRow),
+        totalCount: filtered.length,
+      };
+    } catch (error) {
+      // INFO-200 (데이터 없음)은 빈 결과로 처리
+      if (error instanceof ApiError && error.code === 'INFO-200') {
+        return { items: [], totalCount: 0 };
+      }
+      throw error;
+    }
   }
 
   /**

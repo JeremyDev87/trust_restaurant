@@ -15,3 +15,10 @@ export {
   type ViolationSearchResult,
   type ViolationItemWithBusiness,
 } from './violation.service.js';
+
+export {
+  KakaoMapApiClient,
+  KakaoApiError,
+  createKakaoMapService,
+  type KakaoMapService,
+} from './kakao-map.service.js';

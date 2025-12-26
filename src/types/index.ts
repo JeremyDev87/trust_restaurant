@@ -4,3 +4,4 @@
 
 export * from './api/index.js';
 export * from './domain/index.js';
+export * from './kakao-map.types.js';
