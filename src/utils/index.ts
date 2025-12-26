@@ -38,3 +38,9 @@ export {
   type ValidationError,
   type ValidationOutcome,
 } from './validation.js';
+
+export {
+  withCache,
+  withCacheNullable,
+  type CacheOptions,
+} from './cache-wrapper.js';

@@ -11,6 +11,7 @@ import type {
   RestaurantInfo,
 } from '../types/kakao-map.types.js';
 import type { AreaSearchResult } from '../types/area-search.types.js';
+import { withCache } from '../utils/cache-wrapper.js';
 import {
   type CacheService,
   buildCacheKey,
@@ -205,40 +206,31 @@ export class KakaoMapApiClient implements KakaoMapService {
       return [];
     }
 
-    // 캐시 확인
     const cacheKey = buildCacheKey(
       CACHE_PREFIX.KAKAO_MAP,
       'search',
       query,
       region,
     );
-    if (this.cache) {
-      const cached = await this.cache.get<RestaurantInfo[]>(cacheKey);
-      if (cached) return cached;
-    }
 
-    const searchQuery = `${query} ${region}`;
+    return withCache(
+      { cache: this.cache, key: cacheKey, ttl: CACHE_TTL.KAKAO_MAP },
+      async () => {
+        const searchQuery = `${query} ${region}`;
 
-    // 음식점과 카페 동시 검색
-    const [restaurants, cafes] = await Promise.all([
-      this.searchByCategory(searchQuery, 'FD6'),
-      this.searchByCategory(searchQuery, 'CE7'),
-    ]);
+        // 음식점과 카페 동시 검색
+        const [restaurants, cafes] = await Promise.all([
+          this.searchByCategory(searchQuery, 'FD6'),
+          this.searchByCategory(searchQuery, 'CE7'),
+        ]);
 
-    // 결과 병합 및 중복 제거
-    const allPlaces = this.deduplicateByPlaceId([...restaurants, ...cafes]);
+        // 결과 병합 및 중복 제거
+        const allPlaces = this.deduplicateByPlaceId([...restaurants, ...cafes]);
 
-    // RestaurantInfo로 변환 (최대 5개)
-    const result = allPlaces
-      .slice(0, 5)
-      .map(place => this.toRestaurantInfo(place));
-
-    // 캐시 저장
-    if (this.cache) {
-      await this.cache.set(cacheKey, result, CACHE_TTL.KAKAO_MAP);
-    }
-
-    return result;
+        // RestaurantInfo로 변환 (최대 5개)
+        return allPlaces.slice(0, 5).map(place => this.toRestaurantInfo(place));
+      },
+    );
   }
 
   /**
@@ -356,87 +348,71 @@ export class KakaoMapApiClient implements KakaoMapService {
       };
     }
 
-    // 캐시 확인
     const cacheKey = buildCacheKey(
       CACHE_PREFIX.KAKAO_MAP,
       'area',
       area,
       category,
     );
-    if (this.cache) {
-      const cached = await this.cache.get<AreaSearchResult>(cacheKey);
-      if (cached) return cached;
-    }
 
-    const searchQuery = `${area} 음식점`;
+    return withCache(
+      { cache: this.cache, key: cacheKey, ttl: CACHE_TTL.KAKAO_MAP },
+      async () => {
+        const searchQuery = `${area} 음식점`;
 
-    // 카테고리에 따른 검색
-    let restaurantResult = { places: [] as KakaoPlace[], totalCount: 0 };
-    let cafeResult = { places: [] as KakaoPlace[], totalCount: 0 };
+        // 카테고리에 따른 검색
+        let restaurantResult = { places: [] as KakaoPlace[], totalCount: 0 };
+        let cafeResult = { places: [] as KakaoPlace[], totalCount: 0 };
 
-    if (category === 'restaurant' || category === 'all') {
-      restaurantResult = await this.searchAreaWithPagination(
-        searchQuery,
-        'FD6',
-      );
-    }
-    if (category === 'cafe' || category === 'all') {
-      const cafeQuery = `${area} 카페`;
-      cafeResult = await this.searchAreaWithPagination(cafeQuery, 'CE7');
-    }
+        if (category === 'restaurant' || category === 'all') {
+          restaurantResult = await this.searchAreaWithPagination(
+            searchQuery,
+            'FD6',
+          );
+        }
+        if (category === 'cafe' || category === 'all') {
+          const cafeQuery = `${area} 카페`;
+          cafeResult = await this.searchAreaWithPagination(cafeQuery, 'CE7');
+        }
 
-    // 결과 병합
-    const allPlaces = this.deduplicateByPlaceId([
-      ...restaurantResult.places,
-      ...cafeResult.places,
-    ]);
-    const totalCount = restaurantResult.totalCount + cafeResult.totalCount;
+        // 결과 병합
+        const allPlaces = this.deduplicateByPlaceId([
+          ...restaurantResult.places,
+          ...cafeResult.places,
+        ]);
+        const totalCount =
+          restaurantResult.totalCount + cafeResult.totalCount;
 
-    // 결과 없음
-    if (totalCount === 0) {
-      const result: AreaSearchResult = {
-        status: 'not_found',
-        totalCount: 0,
-        restaurants: [],
-        message: `"${area}" 지역에서 식당을 찾을 수 없습니다.`,
-      };
-      // not_found도 캐시 (불필요한 API 호출 방지)
-      if (this.cache) {
-        await this.cache.set(cacheKey, result, CACHE_TTL.KAKAO_MAP);
-      }
-      return result;
-    }
+        // 결과 없음
+        if (totalCount === 0) {
+          return {
+            status: 'not_found' as const,
+            totalCount: 0,
+            restaurants: [],
+            message: `"${area}" 지역에서 식당을 찾을 수 없습니다.`,
+          };
+        }
 
-    // 결과가 너무 많음 (50개 초과)
-    if (totalCount > 50) {
-      const result: AreaSearchResult = {
-        status: 'too_many',
-        totalCount,
-        restaurants: [],
-        suggestions: this.generateAreaSuggestions(area),
-        message: `"${area}" 지역에 ${totalCount}개의 식당이 있습니다. 더 구체적인 지역을 입력해주세요.`,
-      };
-      // too_many도 캐시 (불필요한 API 호출 방지)
-      if (this.cache) {
-        await this.cache.set(cacheKey, result, CACHE_TTL.KAKAO_MAP);
-      }
-      return result;
-    }
+        // 결과가 너무 많음 (50개 초과)
+        if (totalCount > 50) {
+          return {
+            status: 'too_many' as const,
+            totalCount,
+            restaurants: [],
+            suggestions: this.generateAreaSuggestions(area),
+            message: `"${area}" 지역에 ${totalCount}개의 식당이 있습니다. 더 구체적인 지역을 입력해주세요.`,
+          };
+        }
 
-    // 적절한 결과 수
-    const result: AreaSearchResult = {
-      status: 'ready',
-      totalCount: allPlaces.length,
-      restaurants: allPlaces.map(place => this.toRestaurantInfo(place)),
-      message: `"${area}" 지역에서 ${allPlaces.length}개의 식당을 찾았습니다.`,
-    };
-
-    // 캐시 저장
-    if (this.cache) {
-      await this.cache.set(cacheKey, result, CACHE_TTL.KAKAO_MAP);
-    }
-
-    return result;
+        // 적절한 결과 수
+        return {
+          status: 'ready' as const,
+          totalCount: allPlaces.length,
+          restaurants: allPlaces.map(place => this.toRestaurantInfo(place)),
+          message: `"${area}" 지역에서 ${allPlaces.length}개의 식당을 찾았습니다.`,
+        };
+      },
+    );
   }
 }
 

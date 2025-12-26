@@ -11,6 +11,7 @@ import type {
 } from '../types/domain/restaurant.types.js';
 import { FoodSafetyApiClient } from '../utils/api-client.js';
 import { matchName, matchAddress } from '../utils/address-matcher.js';
+import { withCache } from '../utils/cache-wrapper.js';
 import { SERVICE_IDS } from '../config/constants.js';
 import {
   type CacheService,
@@ -109,42 +110,35 @@ export class ViolationService {
     name: string,
     region?: string,
   ): Promise<ViolationSearchResult> {
-    // 캐시 확인
     const cacheKey = buildCacheKey(
       CACHE_PREFIX.VIOLATION,
       'search',
       name,
       region,
     );
-    if (this.cache) {
-      const cached = await this.cache.get<ViolationSearchResult>(cacheKey);
-      if (cached) return cached;
-    }
 
-    const response = await this.client.fetch<I2630Response>({
-      serviceId: SERVICE_IDS.VIOLATION_FOOD_SERVICE,
-    });
+    return withCache(
+      { cache: this.cache, key: cacheKey, ttl: CACHE_TTL.VIOLATION },
+      async () => {
+        const response = await this.client.fetch<I2630Response>({
+          serviceId: SERVICE_IDS.VIOLATION_FOOD_SERVICE,
+        });
 
-    const rows = response.I2630?.row || [];
+        const rows = response.I2630?.row || [];
 
-    // 이름과 지역으로 필터링 (클라이언트 사이드)
-    const filtered = rows.filter(row => {
-      const nameMatch = matchName(row.PRCSCITYPOINT_BSSHNM, name);
-      const regionMatch = region ? matchAddress(row.ADDR, region) : true;
-      return nameMatch && regionMatch;
-    });
+        // 이름과 지역으로 필터링 (클라이언트 사이드)
+        const filtered = rows.filter(row => {
+          const nameMatch = matchName(row.PRCSCITYPOINT_BSSHNM, name);
+          const regionMatch = region ? matchAddress(row.ADDR, region) : true;
+          return nameMatch && regionMatch;
+        });
 
-    const result = {
-      items: filtered.map(transformRow),
-      totalCount: filtered.length,
-    };
-
-    // 캐시 저장
-    if (this.cache) {
-      await this.cache.set(cacheKey, result, CACHE_TTL.VIOLATION);
-    }
-
-    return result;
+        return {
+          items: filtered.map(transformRow),
+          totalCount: filtered.length,
+        };
+      },
+    );
   }
 
   /**
@@ -156,7 +150,6 @@ export class ViolationService {
     region: string,
     limit: number = 5,
   ): Promise<ViolationHistory> {
-    // 캐시 확인
     const cacheKey = buildCacheKey(
       CACHE_PREFIX.VIOLATION,
       'history',
@@ -164,38 +157,34 @@ export class ViolationService {
       region,
       String(limit),
     );
-    if (this.cache) {
-      const cached = await this.cache.get<ViolationHistory>(cacheKey);
-      if (cached) return cached;
-    }
 
-    const result = await this.searchByName(name, region);
+    return withCache(
+      { cache: this.cache, key: cacheKey, ttl: CACHE_TTL.VIOLATION },
+      async () => {
+        const result = await this.searchByName(name, region);
 
-    // 날짜 기준 정렬 (최신순)
-    const sorted = result.items.sort((a, b) => {
-      return b.date.localeCompare(a.date);
-    });
+        // 날짜 기준 정렬 (최신순)
+        const sorted = result.items.sort((a, b) => {
+          return b.date.localeCompare(a.date);
+        });
 
-    const recentItems: ViolationItem[] = sorted.slice(0, limit).map(item => ({
-      date: item.date,
-      type: item.type,
-      content: item.content,
-      reason: item.reason,
-      period: item.period,
-    }));
+        const recentItems: ViolationItem[] = sorted
+          .slice(0, limit)
+          .map(item => ({
+            date: item.date,
+            type: item.type,
+            content: item.content,
+            reason: item.reason,
+            period: item.period,
+          }));
 
-    const history: ViolationHistory = {
-      total_count: result.totalCount,
-      recent_items: recentItems,
-      has_more: result.totalCount > limit,
-    };
-
-    // 캐시 저장
-    if (this.cache) {
-      await this.cache.set(cacheKey, history, CACHE_TTL.VIOLATION);
-    }
-
-    return history;
+        return {
+          total_count: result.totalCount,
+          recent_items: recentItems,
+          has_more: result.totalCount > limit,
+        };
+      },
+    );
   }
 
   /**
@@ -204,32 +193,24 @@ export class ViolationService {
   async getByLicenseNo(
     licenseNo: string,
   ): Promise<ViolationItemWithBusiness[]> {
-    // 캐시 확인
     const cacheKey = buildCacheKey(
       CACHE_PREFIX.VIOLATION,
       'license',
       licenseNo,
     );
-    if (this.cache) {
-      const cached =
-        await this.cache.get<ViolationItemWithBusiness[]>(cacheKey);
-      if (cached) return cached;
-    }
 
-    const response = await this.client.fetch<I2630Response>({
-      serviceId: SERVICE_IDS.VIOLATION_FOOD_SERVICE,
-      params: { LCNS_NO: licenseNo },
-    });
+    return withCache(
+      { cache: this.cache, key: cacheKey, ttl: CACHE_TTL.VIOLATION },
+      async () => {
+        const response = await this.client.fetch<I2630Response>({
+          serviceId: SERVICE_IDS.VIOLATION_FOOD_SERVICE,
+          params: { LCNS_NO: licenseNo },
+        });
 
-    const rows = response.I2630?.row || [];
-    const result = rows.map(transformRow);
-
-    // 캐시 저장
-    if (this.cache) {
-      await this.cache.set(cacheKey, result, CACHE_TTL.VIOLATION);
-    }
-
-    return result;
+        const rows = response.I2630?.row || [];
+        return rows.map(transformRow);
+      },
+    );
   }
 }
 

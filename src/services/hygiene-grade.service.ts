@@ -8,6 +8,7 @@ import type { C004Response, C004Row } from '../types/api/c004.types.js';
 import type { HygieneGrade } from '../types/domain/restaurant.types.js';
 import { FoodSafetyApiClient, ApiError } from '../utils/api-client.js';
 import { matchName, matchAddress } from '../utils/address-matcher.js';
+import { withCache, withCacheNullable } from '../utils/cache-wrapper.js';
 import { SERVICE_IDS, HYGIENE_GRADE_MAP } from '../config/constants.js';
 import {
   type CacheService,
@@ -105,54 +106,42 @@ export class HygieneGradeService {
     name: string,
     region?: string,
   ): Promise<HygieneGradeSearchResult> {
-    // 캐시 확인
     const cacheKey = buildCacheKey(
       CACHE_PREFIX.HYGIENE_GRADE,
       'search',
       name,
       region,
     );
-    if (this.cache) {
-      const cached = await this.cache.get<HygieneGradeSearchResult>(cacheKey);
-      if (cached) return cached;
-    }
 
-    try {
-      const response = await this.client.fetch<C004Response>({
-        serviceId: SERVICE_IDS.HYGIENE_GRADE,
-        params: { UPSO_NM: name },
-      });
+    return withCache(
+      { cache: this.cache, key: cacheKey, ttl: CACHE_TTL.HYGIENE_GRADE },
+      async () => {
+        try {
+          const response = await this.client.fetch<C004Response>({
+            serviceId: SERVICE_IDS.HYGIENE_GRADE,
+            params: { UPSO_NM: name },
+          });
 
-      const rows = response.C004?.row || [];
+          const rows = response.C004?.row || [];
 
-      // 지역 필터링 (클라이언트 사이드)
-      const filtered = region
-        ? rows.filter(row => matchAddress(row.ADDR, region))
-        : rows;
+          // 지역 필터링 (클라이언트 사이드)
+          const filtered = region
+            ? rows.filter(row => matchAddress(row.ADDR, region))
+            : rows;
 
-      const result = {
-        items: filtered.map(transformRow),
-        totalCount: filtered.length,
-      };
-
-      // 캐시 저장
-      if (this.cache) {
-        await this.cache.set(cacheKey, result, CACHE_TTL.HYGIENE_GRADE);
-      }
-
-      return result;
-    } catch (error) {
-      // INFO-200 (데이터 없음)은 빈 결과로 처리
-      if (error instanceof ApiError && error.code === 'INFO-200') {
-        const emptyResult = { items: [], totalCount: 0 };
-        // 빈 결과도 캐시 (불필요한 API 호출 방지)
-        if (this.cache) {
-          await this.cache.set(cacheKey, emptyResult, CACHE_TTL.HYGIENE_GRADE);
+          return {
+            items: filtered.map(transformRow),
+            totalCount: filtered.length,
+          };
+        } catch (error) {
+          // INFO-200 (데이터 없음)은 빈 결과로 처리
+          if (error instanceof ApiError && error.code === 'INFO-200') {
+            return { items: [], totalCount: 0 };
+          }
+          throw error;
         }
-        return emptyResult;
-      }
-      throw error;
-    }
+      },
+    );
   }
 
   /**
@@ -162,64 +151,51 @@ export class HygieneGradeService {
     name: string,
     region: string,
   ): Promise<HygieneGradeItem | null> {
-    // 캐시 확인 (exact match용 별도 캐시 키)
     const cacheKey = buildCacheKey(
       CACHE_PREFIX.HYGIENE_GRADE,
       'exact',
       name,
       region,
     );
-    if (this.cache) {
-      const cached = await this.cache.get<HygieneGradeItem | null>(cacheKey);
-      if (cached !== null) return cached;
-    }
 
-    const result = await this.searchByName(name, region);
+    return withCacheNullable(
+      { cache: this.cache, key: cacheKey, ttl: CACHE_TTL.HYGIENE_GRADE },
+      async () => {
+        const result = await this.searchByName(name, region);
 
-    // 정확히 일치하는 업소 찾기
-    const exactMatch = result.items.find(
-      item => matchName(item.name, name) && matchAddress(item.address, region),
+        // 정확히 일치하는 업소 찾기
+        const exactMatch = result.items.find(
+          item =>
+            matchName(item.name, name) && matchAddress(item.address, region),
+        );
+
+        return exactMatch || null;
+      },
     );
-
-    const matchResult = exactMatch || null;
-
-    // 캐시 저장 (null 결과도 저장)
-    if (this.cache) {
-      await this.cache.set(cacheKey, matchResult, CACHE_TTL.HYGIENE_GRADE);
-    }
-
-    return matchResult;
   }
 
   /**
    * 인허가번호로 위생등급 조회
    */
   async getByLicenseNo(licenseNo: string): Promise<HygieneGradeItem | null> {
-    // 캐시 확인
     const cacheKey = buildCacheKey(
       CACHE_PREFIX.HYGIENE_GRADE,
       'license',
       licenseNo,
     );
-    if (this.cache) {
-      const cached = await this.cache.get<HygieneGradeItem | null>(cacheKey);
-      if (cached !== null) return cached;
-    }
 
-    const response = await this.client.fetch<C004Response>({
-      serviceId: SERVICE_IDS.HYGIENE_GRADE,
-      params: { LCNS_NO: licenseNo },
-    });
+    return withCacheNullable(
+      { cache: this.cache, key: cacheKey, ttl: CACHE_TTL.HYGIENE_GRADE },
+      async () => {
+        const response = await this.client.fetch<C004Response>({
+          serviceId: SERVICE_IDS.HYGIENE_GRADE,
+          params: { LCNS_NO: licenseNo },
+        });
 
-    const row = response.C004?.row?.[0];
-    const result = row ? transformRow(row) : null;
-
-    // 캐시 저장
-    if (this.cache) {
-      await this.cache.set(cacheKey, result, CACHE_TTL.HYGIENE_GRADE);
-    }
-
-    return result;
+        const row = response.C004?.row?.[0];
+        return row ? transformRow(row) : null;
+      },
+    );
   }
 }
 
