@@ -1,0 +1,49 @@
+{
+  "I2630": {
+    "total_count": "2",
+    "row": [
+      {
+        "PRSDNT_NM": "우**",
+        "TEL_NO": "",
+        "LAST_UPDT_DTM": "2025-12-25 18:40:54.755",
+        "LCNS_NO": "20220512529",
+        "DSPS_INSTTCD_NM": "경기도 화성시",
+        "LAWORD_CD_NM": "식품위생법 제44조(영업자 등의 준수사항) 2항",
+        "DSPSDTLS_SEQ": "4676415",
+        "VILTCN": "(20250704)청소년에게 주류를 제공하는 행위",
+        "ADDR": "경기도 화성시 동탄오산로 86-11(GTX광장프라자 4층 405호 오산동)",
+        "PUBLIC_DT": "2026-01-09 00:00:00.0",
+        "INDUTY_CD_NM": "일반음식점",
+        "DSPS_DCSNDT": "20251224",
+        "PRCSCITYPOINT_BSSHNM": "야간비행",
+        "DSPS_BGNDT": "20260105",
+        "DSPS_TYPECD_NM": "영업정지",
+        "DSPS_ENDDT": "20260107",
+        "DSPSCN": "영업정지(기소유예처분으로 행정처분1/2감경)"
+      },
+      {
+        "PRSDNT_NM": "신**",
+        "TEL_NO": "",
+        "LAST_UPDT_DTM": "2025-12-25 18:40:54.755",
+        "LCNS_NO": "19970098554",
+        "DSPS_INSTTCD_NM": "서울특별시 서초구",
+        "LAWORD_CD_NM": "식품위생법 제44조(영업자 등의 준수사항) 2항",
+        "DSPSDTLS_SEQ": "4697881",
+        "VILTCN": "(20251028)청소년 주류제공(1차 위반)",
+        "ADDR": "서울특별시 서초구 신반포로15길 29(지상동 2층호 반포동)",
+        "PUBLIC_DT": "2026-01-06 00:00:00.0",
+        "INDUTY_CD_NM": "일반음식점",
+        "DSPS_DCSNDT": "20251224",
+        "PRCSCITYPOINT_BSSHNM": "돈 치킨",
+        "DSPS_BGNDT": "20260102",
+        "DSPS_TYPECD_NM": "영업정지",
+        "DSPS_ENDDT": "20260104",
+        "DSPSCN": "영업정지"
+      }
+    ],
+    "RESULT": {
+      "MSG": "정상처리되었습니다.",
+      "CODE": "INFO-000"
+    }
+  }
+}

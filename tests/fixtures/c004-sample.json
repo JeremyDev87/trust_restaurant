@@ -1,0 +1,51 @@
+{
+  "C004": {
+    "total_count": "2",
+    "row": [
+      {
+        "PRSDNT_NM": "손**",
+        "ASGN_FROM": "20240810",
+        "LCNS_NO": "20120107590",
+        "ASGN_TO": "20260809",
+        "HG_ASGN_LV": "매우우수",
+        "BSSH_NM": "스타벅스 선릉로점",
+        "HG_ASGN_YMD": "20240810",
+        "INSTT_CD_NM": "서울 강남구",
+        "ADDR": "서울특별시 강남구 선릉로93길 22(지상1층 1호 역삼동)",
+        "CLSBIZ_DT": "",
+        "HG_ASGN_NO": "제HG230003050호",
+        "ASGN_CANCEL_YMD": "",
+        "HG_ASGN_NM": "식품의약품안전처",
+        "CHNG_DT": "20230405",
+        "TELNO": "",
+        "CLSBIZ_DVS_CD_NM": "정상",
+        "WRKR_REG_NO": "2018121515",
+        "INDUTY_NM": "휴게음식점"
+      },
+      {
+        "PRSDNT_NM": "김**",
+        "ASGN_FROM": "20240122",
+        "LCNS_NO": "20060025621",
+        "ASGN_TO": "20260121",
+        "HG_ASGN_LV": "우수",
+        "BSSH_NM": "맛있는 마라탕",
+        "HG_ASGN_YMD": "20240122",
+        "INSTT_CD_NM": "서울 종로구",
+        "ADDR": "서울특별시 종로구 종로3가 123-45",
+        "CLSBIZ_DT": "",
+        "HG_ASGN_NO": "제HG200000133호",
+        "ASGN_CANCEL_YMD": "",
+        "HG_ASGN_NM": "식품의약품안전처",
+        "CHNG_DT": "20251209",
+        "TELNO": "0212345678",
+        "CLSBIZ_DVS_CD_NM": "정상",
+        "WRKR_REG_NO": "1234567890",
+        "INDUTY_NM": "일반음식점"
+      }
+    ],
+    "RESULT": {
+      "MSG": "정상처리되었습니다.",
+      "CODE": "INFO-000"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "clean-plate-mcp",
+  "version": "1.0.0",
+  "description": "식약처 공인 데이터 기반 식당 위생 정보 조회 MCP 서버",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "clean-plate-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:vercel": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "dev:server": "tsx watch --env-file=.env src/main.ts",
+    "start": "node --env-file=.env dist/index.js",
+    "start:server": "node --env-file=.env dist/src/main.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "food-safety",
+    "hygiene",
+    "restaurant"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@nestjs/common": "^11.1.10",
+    "@nestjs/core": "^11.1.10",
+    "@nestjs/platform-express": "^11.1.10",
+    "express": "^5.2.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.1.10",
+    "@types/express": "^5.0.6",
+    "@types/node": "^20.10.0",
+    "@vercel/node": "^5.5.16",
+    "@vitest/coverage-v8": "^2.0.0",
+    "msw": "^2.6.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

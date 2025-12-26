@@ -50,3 +50,6 @@ coverage/
 .mcp.json
 codingbuddy.config.js
 custom.mdc
+
+# Vercel
+.vercel/
