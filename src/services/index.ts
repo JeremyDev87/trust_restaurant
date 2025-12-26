@@ -22,3 +22,9 @@ export {
   createKakaoMapService,
   type KakaoMapService,
 } from './kakao-map.service.js';
+
+export {
+  BulkHygieneServiceImpl,
+  createBulkHygieneService,
+  type BulkHygieneService,
+} from './bulk-hygiene.service.js';
