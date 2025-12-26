@@ -36,7 +36,7 @@ export class HygieneController {
 
     if (!parseResult.success) {
       const errorMessage = parseResult.error.errors
-        .map((e) => e.message)
+        .map(e => e.message)
         .join(', ');
 
       throw new HttpException(
@@ -44,7 +44,7 @@ export class HygieneController {
           success: false,
           error: { code: 'INVALID_REQUEST', message: errorMessage },
         },
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -54,7 +54,7 @@ export class HygieneController {
     if (!result.success && result.statusCode) {
       throw new HttpException(
         { success: false, error: result.error },
-        result.statusCode
+        result.statusCode,
       );
     }
 

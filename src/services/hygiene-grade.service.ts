@@ -50,7 +50,8 @@ function formatDate(dateStr: string | undefined): string | null {
  * C004Row를 HygieneGradeItem으로 변환
  */
 function transformRow(row: C004Row): HygieneGradeItem {
-  const gradeInfo = HYGIENE_GRADE_MAP[row.HG_ASGN_LV as keyof typeof HYGIENE_GRADE_MAP];
+  const gradeInfo =
+    HYGIENE_GRADE_MAP[row.HG_ASGN_LV as keyof typeof HYGIENE_GRADE_MAP];
 
   const hygieneGrade: HygieneGrade = gradeInfo
     ? {
@@ -94,7 +95,7 @@ export class HygieneGradeService {
    */
   async searchByName(
     name: string,
-    region?: string
+    region?: string,
   ): Promise<HygieneGradeSearchResult> {
     try {
       const response = await this.client.fetch<C004Response>({
@@ -106,7 +107,7 @@ export class HygieneGradeService {
 
       // 지역 필터링 (클라이언트 사이드)
       const filtered = region
-        ? rows.filter((row) => matchAddress(row.ADDR, region))
+        ? rows.filter(row => matchAddress(row.ADDR, region))
         : rows;
 
       return {
@@ -127,13 +128,13 @@ export class HygieneGradeService {
    */
   async findExactMatch(
     name: string,
-    region: string
+    region: string,
   ): Promise<HygieneGradeItem | null> {
     const result = await this.searchByName(name, region);
 
     // 정확히 일치하는 업소 찾기
     const exactMatch = result.items.find(
-      (item) => matchName(item.name, name) && matchAddress(item.address, region)
+      item => matchName(item.name, name) && matchAddress(item.address, region),
     );
 
     return exactMatch || null;
@@ -157,7 +158,7 @@ export class HygieneGradeService {
  * 위생등급 서비스 인스턴스 생성
  */
 export function createHygieneGradeService(
-  client: FoodSafetyApiClient
+  client: FoodSafetyApiClient,
 ): HygieneGradeService {
   return new HygieneGradeService(client);
 }

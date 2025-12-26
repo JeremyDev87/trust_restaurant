@@ -18,7 +18,7 @@ export class KakaoApiError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly status?: number
+    public readonly status?: number,
   ) {
     super(message);
     this.name = 'KakaoApiError';
@@ -42,13 +42,16 @@ export interface KakaoMapService {
  * Kakao Map API 클라이언트
  */
 export class KakaoMapApiClient implements KakaoMapService {
-  private readonly baseUrl = 'https://dapi.kakao.com/v2/local/search/keyword.json';
+  private readonly baseUrl =
+    'https://dapi.kakao.com/v2/local/search/keyword.json';
   private readonly apiKey: string;
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || process.env.KAKAO_API_KEY || '';
     if (!this.apiKey) {
-      console.warn('KAKAO_API_KEY is not set. Kakao Map search will be disabled.');
+      console.warn(
+        'KAKAO_API_KEY is not set. Kakao Map search will be disabled.',
+      );
     }
   }
 
@@ -62,7 +65,9 @@ export class KakaoMapApiClient implements KakaoMapService {
   /**
    * 키워드 검색 API 호출
    */
-  private async search(params: KakaoSearchParams): Promise<KakaoSearchResponse> {
+  private async search(
+    params: KakaoSearchParams,
+  ): Promise<KakaoSearchResponse> {
     if (!this.apiKey) {
       throw new KakaoApiError('KAKAO_API_KEY is not configured', 'NO_API_KEY');
     }
@@ -95,18 +100,18 @@ export class KakaoMapApiClient implements KakaoMapService {
         throw new KakaoApiError(
           `Kakao API error: ${errorText}`,
           'API_ERROR',
-          response.status
+          response.status,
         );
       }
 
-      return await response.json() as KakaoSearchResponse;
+      return (await response.json()) as KakaoSearchResponse;
     } catch (error) {
       if (error instanceof KakaoApiError) {
         throw error;
       }
       throw new KakaoApiError(
         `Network error: ${error instanceof Error ? error.message : String(error)}`,
-        'NETWORK_ERROR'
+        'NETWORK_ERROR',
       );
     }
   }
@@ -116,7 +121,7 @@ export class KakaoMapApiClient implements KakaoMapService {
    */
   private async searchByCategory(
     query: string,
-    category: 'FD6' | 'CE7'
+    category: 'FD6' | 'CE7',
   ): Promise<KakaoPlace[]> {
     try {
       const response = await this.search({
@@ -154,7 +159,7 @@ export class KakaoMapApiClient implements KakaoMapService {
    */
   private deduplicateByPlaceId(places: KakaoPlace[]): KakaoPlace[] {
     const seen = new Set<string>();
-    return places.filter((place) => {
+    return places.filter(place => {
       if (seen.has(place.id)) {
         return false;
       }
@@ -172,7 +177,10 @@ export class KakaoMapApiClient implements KakaoMapService {
    * @param region - 지역명
    * @returns 검색 결과 목록 (최대 5개)
    */
-  async searchRestaurant(query: string, region: string): Promise<RestaurantInfo[]> {
+  async searchRestaurant(
+    query: string,
+    region: string,
+  ): Promise<RestaurantInfo[]> {
     if (!this.isAvailable()) {
       return [];
     }
@@ -189,7 +197,7 @@ export class KakaoMapApiClient implements KakaoMapService {
     const allPlaces = this.deduplicateByPlaceId([...restaurants, ...cafes]);
 
     // RestaurantInfo로 변환 (최대 5개)
-    return allPlaces.slice(0, 5).map((place) => this.toRestaurantInfo(place));
+    return allPlaces.slice(0, 5).map(place => this.toRestaurantInfo(place));
   }
 }
 

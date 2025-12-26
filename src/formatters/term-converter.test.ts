@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { convertTerm, convertViolationType, convertViolationReason } from './term-converter.js';
+import {
+  convertTerm,
+  convertViolationType,
+  convertViolationReason,
+} from './term-converter.js';
 
 describe('TermConverter', () => {
   describe('convertTerm', () => {
@@ -52,7 +56,9 @@ describe('TermConverter', () => {
 
   describe('convertViolationReason', () => {
     it('should convert 위생적취급기준위반', () => {
-      expect(convertViolationReason('위생적취급기준위반')).toBe('위생 기준 위반');
+      expect(convertViolationReason('위생적취급기준위반')).toBe(
+        '위생 기준 위반',
+      );
     });
 
     it('should convert 식품위생법위반', () => {

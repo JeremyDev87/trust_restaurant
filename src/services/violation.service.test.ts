@@ -91,8 +91,8 @@ describe('ViolationService', () => {
 
       expect(result.totalCount).toBe(2);
       expect(result.items).toHaveLength(2);
-      expect(result.items.every((item) => item.businessName === '야간비행')).toBe(
-        true
+      expect(result.items.every(item => item.businessName === '야간비행')).toBe(
+        true,
       );
     });
 
@@ -161,7 +161,10 @@ describe('ViolationService', () => {
     it('should return Violations format', async () => {
       vi.mocked(mockClient.fetch).mockResolvedValueOnce(mockI2630Response);
 
-      const result = await service.getViolationsForRestaurant('야간비행', '화성시');
+      const result = await service.getViolationsForRestaurant(
+        '야간비행',
+        '화성시',
+      );
 
       expect(result.total_count).toBe(2);
       expect(result.recent_items).toHaveLength(2);
@@ -171,7 +174,10 @@ describe('ViolationService', () => {
     it('should sort by date descending', async () => {
       vi.mocked(mockClient.fetch).mockResolvedValueOnce(mockI2630Response);
 
-      const result = await service.getViolationsForRestaurant('야간비행', '화성시');
+      const result = await service.getViolationsForRestaurant(
+        '야간비행',
+        '화성시',
+      );
 
       expect(result.recent_items[0].date).toBe('2025-12-24');
       expect(result.recent_items[1].date).toBe('2024-05-15');
@@ -183,7 +189,7 @@ describe('ViolationService', () => {
       const result = await service.getViolationsForRestaurant(
         '야간비행',
         '화성시',
-        1
+        1,
       );
 
       expect(result.recent_items).toHaveLength(1);
@@ -193,7 +199,10 @@ describe('ViolationService', () => {
     it('should exclude businessName and address from ViolationItem', async () => {
       vi.mocked(mockClient.fetch).mockResolvedValueOnce(mockI2630Response);
 
-      const result = await service.getViolationsForRestaurant('야간비행', '화성시');
+      const result = await service.getViolationsForRestaurant(
+        '야간비행',
+        '화성시',
+      );
       const item = result.recent_items[0];
 
       expect(item).not.toHaveProperty('businessName');

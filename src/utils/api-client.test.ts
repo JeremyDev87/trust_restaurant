@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { FoodSafetyApiClient, ApiError, createApiClient } from './api-client.js';
+import {
+  FoodSafetyApiClient,
+  ApiError,
+  createApiClient,
+} from './api-client.js';
 import { API_CONFIG, SERVICE_IDS } from '../config/constants.js';
 
 describe('FoodSafetyApiClient', () => {
@@ -41,7 +45,7 @@ describe('FoodSafetyApiClient', () => {
       const url = client.buildUrl({ serviceId: 'C004' });
 
       expect(url).toBe(
-        `${API_CONFIG.BASE_URL}/${TEST_API_KEY}/C004/json/1/${API_CONFIG.MAX_RESULTS}`
+        `${API_CONFIG.BASE_URL}/${TEST_API_KEY}/C004/json/1/${API_CONFIG.MAX_RESULTS}`,
       );
     });
 
@@ -111,7 +115,9 @@ describe('FoodSafetyApiClient', () => {
 
       const client = new FoodSafetyApiClient(TEST_API_KEY);
 
-      await expect(client.fetch({ serviceId: 'C004' })).rejects.toThrow(ApiError);
+      await expect(client.fetch({ serviceId: 'C004' })).rejects.toThrow(
+        ApiError,
+      );
       await expect(client.fetch({ serviceId: 'C004' })).rejects.toMatchObject({
         code: 'HTTP_ERROR',
       });
@@ -131,7 +137,9 @@ describe('FoodSafetyApiClient', () => {
 
       const client = new FoodSafetyApiClient(TEST_API_KEY);
 
-      await expect(client.fetch({ serviceId: 'C004' })).rejects.toThrow(ApiError);
+      await expect(client.fetch({ serviceId: 'C004' })).rejects.toThrow(
+        ApiError,
+      );
       await expect(client.fetch({ serviceId: 'C004' })).rejects.toMatchObject({
         code: 'ERROR-300',
       });
@@ -142,7 +150,9 @@ describe('FoodSafetyApiClient', () => {
 
       const client = new FoodSafetyApiClient(TEST_API_KEY);
 
-      await expect(client.fetch({ serviceId: 'C004' })).rejects.toThrow(ApiError);
+      await expect(client.fetch({ serviceId: 'C004' })).rejects.toThrow(
+        ApiError,
+      );
       await expect(client.fetch({ serviceId: 'C004' })).rejects.toMatchObject({
         code: 'NETWORK_ERROR',
       });

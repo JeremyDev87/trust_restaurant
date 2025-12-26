@@ -49,7 +49,7 @@ export function parseAddress(address: string): ParsedAddress {
 
   // 시/도 추출 (첫 번째 공백 또는 특별시/광역시/도 까지)
   const sidoMatch = address.match(
-    /^(서울특별시|부산광역시|대구광역시|인천광역시|광주광역시|대전광역시|울산광역시|세종특별자치시|경기도|강원도|강원특별자치도|충청북도|충청남도|전라북도|전북특별자치도|전라남도|경상북도|경상남도|제주특별자치도|제주도)/
+    /^(서울특별시|부산광역시|대구광역시|인천광역시|광주광역시|대전광역시|울산광역시|세종특별자치시|경기도|강원도|강원특별자치도|충청북도|충청남도|전라북도|전북특별자치도|전라남도|경상북도|경상남도|제주특별자치도|제주도)/,
   );
 
   if (sidoMatch) {
@@ -66,9 +66,8 @@ export function parseAddress(address: string): ParsedAddress {
       const remainingAfterSigungu = remainingAfterSido
         .slice(sigunguMatch[1].length)
         .trim();
-      const eupmyeondongMatch = remainingAfterSigungu.match(
-        /^([가-힣0-9]+[읍면동가로])/
-      );
+      const eupmyeondongMatch =
+        remainingAfterSigungu.match(/^([가-힣0-9]+[읍면동가로])/);
 
       if (eupmyeondongMatch) {
         result.eupmyeondong = eupmyeondongMatch[1];
@@ -88,14 +87,18 @@ export function normalizeRegion(region: string): string[] {
   // 시/도 약칭 확장
   for (const [alias, fullNames] of Object.entries(SIDO_ALIASES)) {
     if (region.includes(alias)) {
-      fullNames.forEach((fullName) => {
+      fullNames.forEach(fullName => {
         normalized.push(region.replace(alias, fullName));
       });
     }
   }
 
   // "구" 가 없으면 "구" 추가 시도
-  if (!region.endsWith('구') && !region.endsWith('시') && !region.endsWith('동')) {
+  if (
+    !region.endsWith('구') &&
+    !region.endsWith('시') &&
+    !region.endsWith('동')
+  ) {
     normalized.push(`${region}구`);
     normalized.push(`${region}동`);
   }
@@ -118,7 +121,7 @@ export function matchAddress(address: string, region: string): boolean {
   const normalizedAddress = address.toLowerCase().replace(/\s+/g, '');
   const regions = normalizeRegion(region);
 
-  return regions.some((r) => {
+  return regions.some(r => {
     const normalizedRegion = r.toLowerCase().replace(/\s+/g, '');
     return normalizedAddress.includes(normalizedRegion);
   });
@@ -150,7 +153,7 @@ export function matchRestaurant(
   restaurantName: string,
   restaurantAddress: string,
   searchName: string,
-  searchRegion: string
+  searchRegion: string,
 ): boolean {
   return (
     matchName(restaurantName, searchName) &&

@@ -105,7 +105,7 @@ function buildSuccessResult(
   hygieneGrade: HygieneGrade,
   violations: ViolationHistory,
   phone?: string,
-  category?: string
+  category?: string,
 ): HygieneSuccessResult {
   const data: RestaurantHygieneResult = {
     restaurant: {
@@ -141,9 +141,9 @@ function extractRegionFromAddress(address: string): string {
  * 카카오맵 결과를 후보 목록으로 변환
  */
 function toRestaurantCandidates(
-  places: RestaurantInfo[]
+  places: RestaurantInfo[],
 ): RestaurantCandidate[] {
-  return places.map((place) => ({
+  return places.map(place => ({
     name: place.name,
     address: place.roadAddress || place.address,
     category: place.category,
@@ -157,7 +157,7 @@ function toRestaurantCandidates(
  * @returns 조회 결과
  */
 export async function queryRestaurantHygiene(
-  params: HygieneQueryParams
+  params: HygieneQueryParams,
 ): Promise<HygieneQueryResult> {
   const { restaurant_name, region, include_history = true } = params;
 
@@ -166,7 +166,7 @@ export async function queryRestaurantHygiene(
     const kakaoMapService = createKakaoMapService();
     const kakaoResults = await kakaoMapService.searchRestaurant(
       restaurant_name,
-      region
+      region,
     );
 
     // 카카오맵 검색 결과가 없는 경우 - 기존 식약처 API 직접 검색으로 폴백
@@ -174,7 +174,7 @@ export async function queryRestaurantHygiene(
       return await searchFoodSafetyDirectly(
         restaurant_name,
         region,
-        include_history
+        include_history,
       );
     }
 
@@ -201,7 +201,7 @@ export async function queryRestaurantHygiene(
     // 상호명과 주소로 위생등급 검색
     const hygieneResult = await hygieneService.findExactMatch(
       place.name,
-      addressRegion
+      addressRegion,
     );
 
     // 위생등급을 찾지 못한 경우 - 카카오맵 정보만 반환
@@ -209,7 +209,7 @@ export async function queryRestaurantHygiene(
       // 부분 검색 시도
       const searchResult = await hygieneService.searchByName(
         place.name,
-        addressRegion
+        addressRegion,
       );
 
       if (searchResult.totalCount === 0) {
@@ -221,7 +221,7 @@ export async function queryRestaurantHygiene(
           NO_HYGIENE_GRADE,
           EMPTY_VIOLATIONS,
           place.phone,
-          place.category
+          place.category,
         );
       }
 
@@ -230,7 +230,7 @@ export async function queryRestaurantHygiene(
         const violations: ViolationHistory = include_history
           ? await violationService.getViolationsForRestaurant(
               match.name,
-              addressRegion
+              addressRegion,
             )
           : EMPTY_VIOLATIONS;
 
@@ -241,7 +241,7 @@ export async function queryRestaurantHygiene(
           match.hygieneGrade,
           violations,
           place.phone,
-          place.category
+          place.category,
         );
       }
 
@@ -250,7 +250,7 @@ export async function queryRestaurantHygiene(
       const violations: ViolationHistory = include_history
         ? await violationService.getViolationsForRestaurant(
             bestMatch.name,
-            addressRegion
+            addressRegion,
           )
         : EMPTY_VIOLATIONS;
 
@@ -261,7 +261,7 @@ export async function queryRestaurantHygiene(
         bestMatch.hygieneGrade,
         violations,
         place.phone,
-        place.category
+        place.category,
       );
     }
 
@@ -269,7 +269,7 @@ export async function queryRestaurantHygiene(
     const violations: ViolationHistory = include_history
       ? await violationService.getViolationsForRestaurant(
           hygieneResult.name,
-          addressRegion
+          addressRegion,
         )
       : EMPTY_VIOLATIONS;
 
@@ -280,7 +280,7 @@ export async function queryRestaurantHygiene(
       hygieneResult.hygieneGrade,
       violations,
       place.phone,
-      place.category
+      place.category,
     );
   } catch (error) {
     if (error instanceof KakaoApiError) {
@@ -289,7 +289,7 @@ export async function queryRestaurantHygiene(
       return await searchFoodSafetyDirectly(
         restaurant_name,
         region,
-        include_history
+        include_history,
       );
     }
 
@@ -321,7 +321,7 @@ export async function queryRestaurantHygiene(
 async function searchFoodSafetyDirectly(
   restaurantName: string,
   region: string,
-  includeHistory: boolean
+  includeHistory: boolean,
 ): Promise<HygieneQueryResult> {
   const apiClient = createApiClient();
   const hygieneService = createHygieneGradeService(apiClient);
@@ -330,7 +330,7 @@ async function searchFoodSafetyDirectly(
   // 위생등급 조회
   const hygieneResult = await hygieneService.findExactMatch(
     restaurantName,
-    region
+    region,
   );
 
   // 식당을 찾지 못한 경우
@@ -338,7 +338,7 @@ async function searchFoodSafetyDirectly(
     // 부분 검색 시도
     const searchResult = await hygieneService.searchByName(
       restaurantName,
-      region
+      region,
     );
 
     if (searchResult.totalCount === 0) {
@@ -352,7 +352,7 @@ async function searchFoodSafetyDirectly(
     }
 
     if (searchResult.totalCount > 1) {
-      const candidates = searchResult.items.slice(0, 5).map((item) => ({
+      const candidates = searchResult.items.slice(0, 5).map(item => ({
         name: item.name,
         address: item.address,
         grade: item.hygieneGrade.grade || '등급없음',
@@ -373,7 +373,7 @@ async function searchFoodSafetyDirectly(
     const violations: ViolationHistory = includeHistory
       ? await violationService.getViolationsForRestaurant(
           singleMatch.name,
-          region
+          region,
         )
       : EMPTY_VIOLATIONS;
 
@@ -382,7 +382,7 @@ async function searchFoodSafetyDirectly(
       singleMatch.address,
       singleMatch.businessType,
       singleMatch.hygieneGrade,
-      violations
+      violations,
     );
   }
 
@@ -390,7 +390,7 @@ async function searchFoodSafetyDirectly(
   const violations: ViolationHistory = includeHistory
     ? await violationService.getViolationsForRestaurant(
         hygieneResult.name,
-        region
+        region,
       )
     : EMPTY_VIOLATIONS;
 
@@ -399,6 +399,6 @@ async function searchFoodSafetyDirectly(
     hygieneResult.address,
     hygieneResult.businessType,
     hygieneResult.hygieneGrade,
-    violations
+    violations,
   );
 }

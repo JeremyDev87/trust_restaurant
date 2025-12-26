@@ -5,7 +5,10 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { queryRestaurantHygiene, type HygieneQueryParams } from '../../core/index.js';
+import {
+  queryRestaurantHygiene,
+  type HygieneQueryParams,
+} from '../../core/index.js';
 import type { RestaurantHygieneResult } from '../../types/domain/restaurant.types.js';
 
 /**

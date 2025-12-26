@@ -44,8 +44,11 @@ const TOOLS = [
  */
 async function executeTool(
   name: string,
-  args: Record<string, unknown>
-): Promise<{ content: Array<{ type: string; text: string }>; isError?: boolean }> {
+  args: Record<string, unknown>,
+): Promise<{
+  content: Array<{ type: string; text: string }>;
+  isError?: boolean;
+}> {
   if (name !== 'get_restaurant_hygiene') {
     return {
       content: [{ type: 'text', text: `Unknown tool: ${name}` }],
@@ -56,7 +59,7 @@ async function executeTool(
   const result = await queryRestaurantHygiene({
     restaurant_name: args.restaurant_name as string,
     region: args.region as string,
-    include_history: args.include_history as boolean ?? true,
+    include_history: (args.include_history as boolean) ?? true,
   });
 
   if (!result.success) {
@@ -109,7 +112,10 @@ export class McpController {
       if (jsonrpc !== '2.0') {
         return res.status(400).json({
           jsonrpc: '2.0',
-          error: { code: -32600, message: 'Invalid Request: jsonrpc must be 2.0' },
+          error: {
+            code: -32600,
+            message: 'Invalid Request: jsonrpc must be 2.0',
+          },
           id: null,
         });
       }
@@ -135,7 +141,8 @@ export class McpController {
 
         case 'tools/call':
           const toolName = (params as { name: string })?.name;
-          const toolArgs = (params as { arguments: Record<string, unknown> })?.arguments || {};
+          const toolArgs =
+            (params as { arguments: Record<string, unknown> })?.arguments || {};
           result = await executeTool(toolName, toolArgs);
           break;
 

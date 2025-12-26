@@ -1,17 +1,18 @@
-const tsParser = require('@typescript-eslint/parser');
-const tsPlugin = require('@typescript-eslint/eslint-plugin');
-const globals = require('globals');
-const js = require('@eslint/js');
-const prettier = require('eslint-config-prettier');
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import globals from 'globals';
+import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
 
-module.exports = [
+export default [
   js.configs.recommended,
   {
-    files: ['**/*.ts'],
+    files: ['src/**/*.ts'],
+    ignores: ['**/*.test.ts'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: './mcp-server/tsconfig.json',
+        project: './tsconfig.json',
         sourceType: 'module',
       },
       globals: {
@@ -30,6 +31,27 @@ module.exports = [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
+      'no-case-declarations': 'off',
+    },
+  },
+  {
+    files: ['**/*.test.ts'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        sourceType: 'module',
+      },
+      globals: {
+        ...globals.node,
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      ...tsPlugin.configs.recommended.rules,
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   prettier,

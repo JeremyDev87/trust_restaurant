@@ -25,7 +25,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly statusCode?: number
+    public readonly statusCode?: number,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -46,7 +46,9 @@ export class FoodSafetyApiClient {
     this.timeout = API_CONFIG.TIMEOUT;
 
     if (!this.apiKey) {
-      throw new Error('API key is required. Set FOOD_API_KEY environment variable.');
+      throw new Error(
+        'API key is required. Set FOOD_API_KEY environment variable.',
+      );
     }
   }
 
@@ -97,7 +99,7 @@ export class FoodSafetyApiClient {
         throw new ApiError(
           `HTTP error: ${response.statusText}`,
           'HTTP_ERROR',
-          response.status
+          response.status,
         );
       }
 
@@ -110,7 +112,7 @@ export class FoodSafetyApiClient {
       if (serviceData?.RESULT?.CODE && serviceData.RESULT.CODE !== 'INFO-000') {
         throw new ApiError(
           serviceData.RESULT.MSG || 'API error',
-          serviceData.RESULT.CODE
+          serviceData.RESULT.CODE,
         );
       }
 
@@ -132,7 +134,6 @@ export class FoodSafetyApiClient {
       clearTimeout(timeoutId);
     }
   }
-
 }
 
 /**

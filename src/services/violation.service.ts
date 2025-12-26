@@ -5,7 +5,10 @@
  */
 
 import type { I2630Response, I2630Row } from '../types/api/i2630.types.js';
-import type { ViolationItem, ViolationHistory } from '../types/domain/restaurant.types.js';
+import type {
+  ViolationItem,
+  ViolationHistory,
+} from '../types/domain/restaurant.types.js';
 import { FoodSafetyApiClient } from '../utils/api-client.js';
 import { matchName, matchAddress } from '../utils/address-matcher.js';
 import { SERVICE_IDS } from '../config/constants.js';
@@ -96,7 +99,7 @@ export class ViolationService {
    */
   async searchByName(
     name: string,
-    region?: string
+    region?: string,
   ): Promise<ViolationSearchResult> {
     const response = await this.client.fetch<I2630Response>({
       serviceId: SERVICE_IDS.VIOLATION_FOOD_SERVICE,
@@ -105,7 +108,7 @@ export class ViolationService {
     const rows = response.I2630?.row || [];
 
     // 이름과 지역으로 필터링 (클라이언트 사이드)
-    const filtered = rows.filter((row) => {
+    const filtered = rows.filter(row => {
       const nameMatch = matchName(row.PRCSCITYPOINT_BSSHNM, name);
       const regionMatch = region ? matchAddress(row.ADDR, region) : true;
       return nameMatch && regionMatch;
@@ -124,7 +127,7 @@ export class ViolationService {
   async getViolationsForRestaurant(
     name: string,
     region: string,
-    limit: number = 5
+    limit: number = 5,
   ): Promise<ViolationHistory> {
     const result = await this.searchByName(name, region);
 
@@ -133,7 +136,7 @@ export class ViolationService {
       return b.date.localeCompare(a.date);
     });
 
-    const recentItems: ViolationItem[] = sorted.slice(0, limit).map((item) => ({
+    const recentItems: ViolationItem[] = sorted.slice(0, limit).map(item => ({
       date: item.date,
       type: item.type,
       content: item.content,
@@ -151,7 +154,9 @@ export class ViolationService {
   /**
    * 인허가번호로 행정처분 조회
    */
-  async getByLicenseNo(licenseNo: string): Promise<ViolationItemWithBusiness[]> {
+  async getByLicenseNo(
+    licenseNo: string,
+  ): Promise<ViolationItemWithBusiness[]> {
     const response = await this.client.fetch<I2630Response>({
       serviceId: SERVICE_IDS.VIOLATION_FOOD_SERVICE,
       params: { LCNS_NO: licenseNo },
@@ -166,7 +171,7 @@ export class ViolationService {
  * 행정처분 서비스 인스턴스 생성
  */
 export function createViolationService(
-  client: FoodSafetyApiClient
+  client: FoodSafetyApiClient,
 ): ViolationService {
   return new ViolationService(client);
 }

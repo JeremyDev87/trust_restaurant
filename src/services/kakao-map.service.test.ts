@@ -83,7 +83,10 @@ describe('KakaoMapApiClient', () => {
         json: () => Promise.resolve(emptyResponse),
       });
 
-      const results = await client.searchRestaurant('존재하지않는식당', '강남구');
+      const results = await client.searchRestaurant(
+        '존재하지않는식당',
+        '강남구',
+      );
 
       expect(results).toEqual([]);
     });
@@ -123,17 +126,19 @@ describe('KakaoMapApiClient', () => {
     });
 
     it('should search both restaurant and cafe categories', async () => {
-      const fetchMock = vi.fn()
+      const fetchMock = vi
+        .fn()
         .mockResolvedValueOnce({
           ok: true,
           json: () => Promise.resolve(mockKakaoResponse), // FD6 (음식점)
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            documents: [],
-            meta: { total_count: 0, pageable_count: 0, is_end: true },
-          }), // CE7 (카페)
+          json: () =>
+            Promise.resolve({
+              documents: [],
+              meta: { total_count: 0, pageable_count: 0, is_end: true },
+            }), // CE7 (카페)
         });
 
       global.fetch = fetchMock;
@@ -151,7 +156,8 @@ describe('KakaoMapApiClient', () => {
 
     it('should deduplicate results from different categories', async () => {
       // 같은 가게가 FD6와 CE7 모두에서 나오는 경우
-      global.fetch = vi.fn()
+      global.fetch = vi
+        .fn()
         .mockResolvedValueOnce({
           ok: true,
           json: () => Promise.resolve(mockKakaoResponse),
@@ -169,16 +175,18 @@ describe('KakaoMapApiClient', () => {
 
     it('should limit results to MAX_RESULTS', async () => {
       const manyResults: KakaoSearchResponse = {
-        documents: Array(10).fill(null).map((_, i) => ({
-          id: `${i}`,
-          place_name: `식당 ${i}`,
-          address_name: '서울 강남구',
-          road_address_name: '서울 강남구',
-          phone: '02-0000-0000',
-          category_name: '음식점',
-          x: '127.0',
-          y: '37.5',
-        })),
+        documents: Array(10)
+          .fill(null)
+          .map((_, i) => ({
+            id: `${i}`,
+            place_name: `식당 ${i}`,
+            address_name: '서울 강남구',
+            road_address_name: '서울 강남구',
+            phone: '02-0000-0000',
+            category_name: '음식점',
+            x: '127.0',
+            y: '37.5',
+          })),
         meta: { total_count: 10, pageable_count: 10, is_end: true },
       };
 
@@ -219,16 +227,21 @@ describe('KakaoMapApiClient', () => {
     it('should encode query parameters correctly', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ documents: [], meta: { total_count: 0, pageable_count: 0, is_end: true } }),
+        json: () =>
+          Promise.resolve({
+            documents: [],
+            meta: { total_count: 0, pageable_count: 0, is_end: true },
+          }),
       });
 
       await client.searchRestaurant('스타벅스 강남', '역삼동');
 
-      const callUrl = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const callUrl = (global.fetch as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
       // URLSearchParams uses + for spaces
-      expect(callUrl).toContain('%EC%8A%A4%ED%83%80%EB%B2%85%EC%8A%A4');  // 스타벅스
-      expect(callUrl).toContain('%EA%B0%95%EB%82%A8');  // 강남
-      expect(callUrl).toContain('%EC%97%AD%EC%82%BC%EB%8F%99');  // 역삼동
+      expect(callUrl).toContain('%EC%8A%A4%ED%83%80%EB%B2%85%EC%8A%A4'); // 스타벅스
+      expect(callUrl).toContain('%EA%B0%95%EB%82%A8'); // 강남
+      expect(callUrl).toContain('%EC%97%AD%EC%82%BC%EB%8F%99'); // 역삼동
     });
   });
 

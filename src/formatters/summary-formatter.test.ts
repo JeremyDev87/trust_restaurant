@@ -171,11 +171,36 @@ describe('SummaryFormatter', () => {
       const violations = {
         total_count: 5,
         recent_items: [
-          { date: '2024-01-15', type: '영업정지', content: '영업정지 7일', reason: '위반1' },
-          { date: '2023-08-20', type: '과태료', content: '과태료 100만원', reason: '위반2' },
-          { date: '2023-03-05', type: '시정명령', content: '시정 명령', reason: '위반3' },
-          { date: '2022-12-01', type: '과태료', content: '과태료 50만원', reason: '위반4' },
-          { date: '2022-06-15', type: '시정명령', content: '시정 명령', reason: '위반5' },
+          {
+            date: '2024-01-15',
+            type: '영업정지',
+            content: '영업정지 7일',
+            reason: '위반1',
+          },
+          {
+            date: '2023-08-20',
+            type: '과태료',
+            content: '과태료 100만원',
+            reason: '위반2',
+          },
+          {
+            date: '2023-03-05',
+            type: '시정명령',
+            content: '시정 명령',
+            reason: '위반3',
+          },
+          {
+            date: '2022-12-01',
+            type: '과태료',
+            content: '과태료 50만원',
+            reason: '위반4',
+          },
+          {
+            date: '2022-06-15',
+            type: '시정명령',
+            content: '시정 명령',
+            reason: '위반5',
+          },
         ],
         has_more: true,
       };
@@ -244,7 +269,9 @@ describe('SummaryFormatter', () => {
       const result = formatSummary(data);
 
       expect(result.hygieneSection).toBe('🏆 위생등급: ★★☆ 우수 (AA)');
-      expect(result.violationSection).toBe('✅ 행정처분: 최근 3년간 처분 이력이 없습니다.');
+      expect(result.violationSection).toBe(
+        '✅ 행정처분: 최근 3년간 처분 이력이 없습니다.',
+      );
       expect(result.text).toContain('🏆 위생등급:');
       expect(result.text).toContain('✅ 행정처분:');
     });
@@ -309,8 +336,12 @@ describe('SummaryFormatter', () => {
 
       const result = formatSummary(data);
 
-      expect(result.hygieneSection).toBe('ℹ️ 위생등급: 등급 미보유 (미신청 업소)');
-      expect(result.violationSection).toBe('✅ 행정처분: 최근 3년간 처분 이력이 없습니다.');
+      expect(result.hygieneSection).toBe(
+        'ℹ️ 위생등급: 등급 미보유 (미신청 업소)',
+      );
+      expect(result.violationSection).toBe(
+        '✅ 행정처분: 최근 3년간 처분 이력이 없습니다.',
+      );
     });
 
     it('S-004: 위생등급 미보유 + 처분 이력 다수', () => {
@@ -356,7 +387,9 @@ describe('SummaryFormatter', () => {
 
       const result = formatSummary(data);
 
-      expect(result.hygieneSection).toBe('ℹ️ 위생등급: 등급 미보유 (미신청 업소)');
+      expect(result.hygieneSection).toBe(
+        'ℹ️ 위생등급: 등급 미보유 (미신청 업소)',
+      );
       expect(result.violationSection).toContain('⚠️ 행정처분: 3건');
       expect(result.violationSection).toContain('2024.01.15');
       expect(result.violationSection).toContain('2023.08.20');
@@ -392,7 +425,9 @@ describe('SummaryFormatter', () => {
       });
 
       expect(result.hygieneSection).toBe('🏆 위생등급: ★★☆ 우수 (AA)');
-      expect(result.violationSection).toBe('❓ 행정처분: 현재 조회할 수 없습니다.');
+      expect(result.violationSection).toBe(
+        '❓ 행정처분: 현재 조회할 수 없습니다.',
+      );
     });
   });
 });

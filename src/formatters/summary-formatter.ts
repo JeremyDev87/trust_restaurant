@@ -10,7 +10,10 @@ import type {
   ViolationHistory,
   ViolationItem,
 } from '../types/domain/restaurant.types.js';
-import { convertViolationType, convertViolationReason } from './term-converter.js';
+import {
+  convertViolationType,
+  convertViolationReason,
+} from './term-converter.js';
 
 /**
  * 아이콘 상수

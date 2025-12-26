@@ -33,19 +33,22 @@ export const SERVICE_IDS = {
  * 위생 등급 매핑
  */
 export const HYGIENE_GRADE_MAP = {
-  '매우우수': { grade: 'AAA', label: '매우 우수', stars: 3 },
-  '우수': { grade: 'AA', label: '우수', stars: 2 },
-  '좋음': { grade: 'A', label: '좋음', stars: 1 },
+  매우우수: { grade: 'AAA', label: '매우 우수', stars: 3 },
+  우수: { grade: 'AA', label: '우수', stars: 2 },
+  좋음: { grade: 'A', label: '좋음', stars: 1 },
 } as const;
 
 /**
  * 에러 메시지
  */
 export const ERROR_MESSAGES = {
-  NOT_FOUND: '해당 조건으로 식당을 찾을 수 없습니다. 식당명이나 지역을 다시 확인해주세요.',
-  API_ERROR: '현재 식약처 데이터를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.',
+  NOT_FOUND:
+    '해당 조건으로 식당을 찾을 수 없습니다. 식당명이나 지역을 다시 확인해주세요.',
+  API_ERROR:
+    '현재 식약처 데이터를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.',
   KAKAO_API_ERROR: '카카오맵 검색에 실패했습니다. 잠시 후 다시 시도해주세요.',
-  KAKAO_NOT_FOUND: '해당 지역에서 식당을 찾을 수 없습니다. 식당명이나 지역을 다시 확인해주세요.',
+  KAKAO_NOT_FOUND:
+    '해당 지역에서 식당을 찾을 수 없습니다. 식당명이나 지역을 다시 확인해주세요.',
   MISSING_RESTAURANT_NAME: '식당 이름을 알려주세요.',
   MISSING_REGION: '어느 지역의 식당인지 알려주시겠어요?',
   HYGIENE_NOT_REGISTERED: '이 식당은 위생등급이 아직 등록되지 않았습니다.',
