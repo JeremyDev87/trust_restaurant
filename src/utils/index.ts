@@ -44,3 +44,5 @@ export {
   withCacheNullable,
   type CacheOptions,
 } from './cache-wrapper.js';
+
+export { formatDate } from './date-formatter.js';

@@ -122,6 +122,44 @@ const EMPTY_VIOLATIONS: ViolationHistory = {
 };
 
 /**
+ * 행정처분 이력 조회 (조건부)
+ */
+async function fetchViolationsIfNeeded(
+  includeHistory: boolean,
+  violationService: ViolationService,
+  name: string,
+  region: string,
+): Promise<ViolationHistory> {
+  if (!includeHistory) {
+    return EMPTY_VIOLATIONS;
+  }
+  return violationService.getViolationsForRestaurant(name, region);
+}
+
+/**
+ * 에러를 HygieneErrorResult로 변환
+ */
+function mapQueryError(error: unknown): HygieneErrorResult {
+  if (error instanceof ApiError) {
+    return {
+      success: false,
+      error: {
+        code: 'API_ERROR',
+        message: `API 오류가 발생했습니다: ${error.message} (코드: ${error.code})`,
+      },
+    };
+  }
+
+  return {
+    success: false,
+    error: {
+      code: 'UNKNOWN_ERROR',
+      message: `알 수 없는 오류가 발생했습니다: ${error instanceof Error ? error.message : String(error)}`,
+    },
+  };
+}
+
+/**
  * 성공 결과 생성
  */
 function buildSuccessResult(
@@ -281,12 +319,12 @@ export async function queryRestaurantHygiene(
 
       if (searchResult.totalCount === 1) {
         const match = searchResult.items[0];
-        const violations: ViolationHistory = include_history
-          ? await violationService.getViolationsForRestaurant(
-              match.name,
-              addressRegion,
-            )
-          : EMPTY_VIOLATIONS;
+        const violations = await fetchViolationsIfNeeded(
+          include_history,
+          violationService,
+          match.name,
+          addressRegion,
+        );
 
         return buildSuccessResult(
           place.name, // 카카오맵 이름 사용
@@ -301,12 +339,12 @@ export async function queryRestaurantHygiene(
 
       // 여러 개 매칭 - 카카오맵 정보와 가장 유사한 것 선택
       const bestMatch = searchResult.items[0];
-      const violations: ViolationHistory = include_history
-        ? await violationService.getViolationsForRestaurant(
-            bestMatch.name,
-            addressRegion,
-          )
-        : EMPTY_VIOLATIONS;
+      const violations = await fetchViolationsIfNeeded(
+        include_history,
+        violationService,
+        bestMatch.name,
+        addressRegion,
+      );
 
       return buildSuccessResult(
         place.name,
@@ -320,12 +358,12 @@ export async function queryRestaurantHygiene(
     }
 
     // Step 3: 위생등급 발견 - 행정처분 이력 조회
-    const violations: ViolationHistory = include_history
-      ? await violationService.getViolationsForRestaurant(
-          hygieneResult.name,
-          addressRegion,
-        )
-      : EMPTY_VIOLATIONS;
+    const violations = await fetchViolationsIfNeeded(
+      include_history,
+      violationService,
+      hygieneResult.name,
+      addressRegion,
+    );
 
     return buildSuccessResult(
       place.name, // 카카오맵 이름 사용 (더 정확)
@@ -337,8 +375,8 @@ export async function queryRestaurantHygiene(
       place.category,
     );
   } catch (error) {
+    // 카카오 API 오류 시 기존 방식으로 폴백
     if (error instanceof KakaoApiError) {
-      // 카카오 API 오류 시 기존 방식으로 폴백
       console.error('Kakao API error, falling back to direct search:', error);
       return await searchFoodSafetyDirectlyWithServices(
         restaurant_name,
@@ -349,23 +387,7 @@ export async function queryRestaurantHygiene(
       );
     }
 
-    if (error instanceof ApiError) {
-      return {
-        success: false,
-        error: {
-          code: 'API_ERROR',
-          message: `API 오류가 발생했습니다: ${error.message} (코드: ${error.code})`,
-        },
-      };
-    }
-
-    return {
-      success: false,
-      error: {
-        code: 'UNKNOWN_ERROR',
-        message: `알 수 없는 오류가 발생했습니다: ${error instanceof Error ? error.message : String(error)}`,
-      },
-    };
+    return mapQueryError(error);
   }
 }
 
@@ -424,12 +446,12 @@ async function searchFoodSafetyDirectlyWithServices(
 
     // 단일 결과면 그것을 사용
     const singleMatch = searchResult.items[0];
-    const violations: ViolationHistory = includeHistory
-      ? await violationService.getViolationsForRestaurant(
-          singleMatch.name,
-          region,
-        )
-      : EMPTY_VIOLATIONS;
+    const violations = await fetchViolationsIfNeeded(
+      includeHistory,
+      violationService,
+      singleMatch.name,
+      region,
+    );
 
     return buildSuccessResult(
       singleMatch.name,
@@ -441,12 +463,12 @@ async function searchFoodSafetyDirectlyWithServices(
   }
 
   // 정확히 일치하는 식당 발견
-  const violations: ViolationHistory = includeHistory
-    ? await violationService.getViolationsForRestaurant(
-        hygieneResult.name,
-        region,
-      )
-    : EMPTY_VIOLATIONS;
+  const violations = await fetchViolationsIfNeeded(
+    includeHistory,
+    violationService,
+    hygieneResult.name,
+    region,
+  );
 
   return buildSuccessResult(
     hygieneResult.name,

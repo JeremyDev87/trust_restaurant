@@ -9,6 +9,7 @@ import type { HygieneGrade } from '../types/domain/restaurant.types.js';
 import { FoodSafetyApiClient, ApiError } from '../utils/api-client.js';
 import { matchName, matchAddress } from '../utils/address-matcher.js';
 import { withCache, withCacheNullable } from '../utils/cache-wrapper.js';
+import { formatDate } from '../utils/date-formatter.js';
 import { SERVICE_IDS, HYGIENE_GRADE_MAP } from '../config/constants.js';
 import {
   type CacheService,
@@ -41,16 +42,6 @@ export interface HygieneGradeItem {
   businessType: string;
   /** 위생등급 정보 */
   hygieneGrade: HygieneGrade;
-}
-
-/**
- * 날짜 포맷 변환 (YYYYMMDD → YYYY-MM-DD)
- */
-function formatDate(dateStr: string | undefined): string | null {
-  if (!dateStr || dateStr.length !== 8) {
-    return null;
-  }
-  return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
 }
 
 /**
