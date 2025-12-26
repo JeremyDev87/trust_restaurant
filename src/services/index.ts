@@ -28,3 +28,11 @@ export {
   createBulkHygieneService,
   type BulkHygieneService,
 } from './bulk-hygiene.service.js';
+
+export {
+  createCacheService,
+  buildCacheKey,
+  CACHE_TTL,
+  CACHE_PREFIX,
+  type CacheService,
+} from './cache.service.js';

@@ -12,6 +12,12 @@ import type {
 import { FoodSafetyApiClient } from '../utils/api-client.js';
 import { matchName, matchAddress } from '../utils/address-matcher.js';
 import { SERVICE_IDS } from '../config/constants.js';
+import {
+  type CacheService,
+  buildCacheKey,
+  CACHE_TTL,
+  CACHE_PREFIX,
+} from './cache.service.js';
 
 /**
  * 행정처분 조회 결과
@@ -89,9 +95,11 @@ function transformRow(row: I2630Row): ViolationItemWithBusiness {
  */
 export class ViolationService {
   private readonly client: FoodSafetyApiClient;
+  private readonly cache?: CacheService;
 
-  constructor(client: FoodSafetyApiClient) {
+  constructor(client: FoodSafetyApiClient, cache?: CacheService) {
     this.client = client;
+    this.cache = cache;
   }
 
   /**
@@ -101,6 +109,18 @@ export class ViolationService {
     name: string,
     region?: string,
   ): Promise<ViolationSearchResult> {
+    // 캐시 확인
+    const cacheKey = buildCacheKey(
+      CACHE_PREFIX.VIOLATION,
+      'search',
+      name,
+      region,
+    );
+    if (this.cache) {
+      const cached = await this.cache.get<ViolationSearchResult>(cacheKey);
+      if (cached) return cached;
+    }
+
     const response = await this.client.fetch<I2630Response>({
       serviceId: SERVICE_IDS.VIOLATION_FOOD_SERVICE,
     });
@@ -114,10 +134,17 @@ export class ViolationService {
       return nameMatch && regionMatch;
     });
 
-    return {
+    const result = {
       items: filtered.map(transformRow),
       totalCount: filtered.length,
     };
+
+    // 캐시 저장
+    if (this.cache) {
+      await this.cache.set(cacheKey, result, CACHE_TTL.VIOLATION);
+    }
+
+    return result;
   }
 
   /**
@@ -129,6 +156,19 @@ export class ViolationService {
     region: string,
     limit: number = 5,
   ): Promise<ViolationHistory> {
+    // 캐시 확인
+    const cacheKey = buildCacheKey(
+      CACHE_PREFIX.VIOLATION,
+      'history',
+      name,
+      region,
+      String(limit),
+    );
+    if (this.cache) {
+      const cached = await this.cache.get<ViolationHistory>(cacheKey);
+      if (cached) return cached;
+    }
+
     const result = await this.searchByName(name, region);
 
     // 날짜 기준 정렬 (최신순)
@@ -144,11 +184,18 @@ export class ViolationService {
       period: item.period,
     }));
 
-    return {
+    const history: ViolationHistory = {
       total_count: result.totalCount,
       recent_items: recentItems,
       has_more: result.totalCount > limit,
     };
+
+    // 캐시 저장
+    if (this.cache) {
+      await this.cache.set(cacheKey, history, CACHE_TTL.VIOLATION);
+    }
+
+    return history;
   }
 
   /**
@@ -157,13 +204,32 @@ export class ViolationService {
   async getByLicenseNo(
     licenseNo: string,
   ): Promise<ViolationItemWithBusiness[]> {
+    // 캐시 확인
+    const cacheKey = buildCacheKey(
+      CACHE_PREFIX.VIOLATION,
+      'license',
+      licenseNo,
+    );
+    if (this.cache) {
+      const cached =
+        await this.cache.get<ViolationItemWithBusiness[]>(cacheKey);
+      if (cached) return cached;
+    }
+
     const response = await this.client.fetch<I2630Response>({
       serviceId: SERVICE_IDS.VIOLATION_FOOD_SERVICE,
       params: { LCNS_NO: licenseNo },
     });
 
     const rows = response.I2630?.row || [];
-    return rows.map(transformRow);
+    const result = rows.map(transformRow);
+
+    // 캐시 저장
+    if (this.cache) {
+      await this.cache.set(cacheKey, result, CACHE_TTL.VIOLATION);
+    }
+
+    return result;
   }
 }
 
@@ -172,6 +238,7 @@ export class ViolationService {
  */
 export function createViolationService(
   client: FoodSafetyApiClient,
+  cache?: CacheService,
 ): ViolationService {
-  return new ViolationService(client);
+  return new ViolationService(client, cache);
 }

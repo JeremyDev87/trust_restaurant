@@ -9,14 +9,16 @@ import {
   createHygieneGradeService,
   createViolationService,
   createBulkHygieneService,
+  createCacheService,
 } from './services/index.js';
 import { createApiClient } from './utils/api-client.js';
 
-// 서비스 인스턴스 생성
+// 서비스 인스턴스 생성 (캐시 포함)
+const cacheService = createCacheService();
 const apiClient = createApiClient();
-const kakaoMapService = createKakaoMapService();
-const hygieneGradeService = createHygieneGradeService(apiClient);
-const violationService = createViolationService(apiClient);
+const kakaoMapService = createKakaoMapService(undefined, cacheService);
+const hygieneGradeService = createHygieneGradeService(apiClient, cacheService);
+const violationService = createViolationService(apiClient, cacheService);
 const bulkHygieneService = createBulkHygieneService(
   hygieneGradeService,
   violationService,

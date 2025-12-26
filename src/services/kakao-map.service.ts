@@ -11,6 +11,12 @@ import type {
   RestaurantInfo,
 } from '../types/kakao-map.types.js';
 import type { AreaSearchResult } from '../types/area-search.types.js';
+import {
+  type CacheService,
+  buildCacheKey,
+  CACHE_TTL,
+  CACHE_PREFIX,
+} from './cache.service.js';
 
 /**
  * Kakao Map API 에러
@@ -57,9 +63,11 @@ export class KakaoMapApiClient implements KakaoMapService {
   private readonly baseUrl =
     'https://dapi.kakao.com/v2/local/search/keyword.json';
   private readonly apiKey: string;
+  private readonly cache?: CacheService;
 
-  constructor(apiKey?: string) {
+  constructor(apiKey?: string, cache?: CacheService) {
     this.apiKey = apiKey || process.env.KAKAO_API_KEY || '';
+    this.cache = cache;
     if (!this.apiKey) {
       console.warn(
         'KAKAO_API_KEY is not set. Kakao Map search will be disabled.',
@@ -197,6 +205,18 @@ export class KakaoMapApiClient implements KakaoMapService {
       return [];
     }
 
+    // 캐시 확인
+    const cacheKey = buildCacheKey(
+      CACHE_PREFIX.KAKAO_MAP,
+      'search',
+      query,
+      region,
+    );
+    if (this.cache) {
+      const cached = await this.cache.get<RestaurantInfo[]>(cacheKey);
+      if (cached) return cached;
+    }
+
     const searchQuery = `${query} ${region}`;
 
     // 음식점과 카페 동시 검색
@@ -209,7 +229,16 @@ export class KakaoMapApiClient implements KakaoMapService {
     const allPlaces = this.deduplicateByPlaceId([...restaurants, ...cafes]);
 
     // RestaurantInfo로 변환 (최대 5개)
-    return allPlaces.slice(0, 5).map(place => this.toRestaurantInfo(place));
+    const result = allPlaces
+      .slice(0, 5)
+      .map(place => this.toRestaurantInfo(place));
+
+    // 캐시 저장
+    if (this.cache) {
+      await this.cache.set(cacheKey, result, CACHE_TTL.KAKAO_MAP);
+    }
+
+    return result;
   }
 
   /**
@@ -327,6 +356,18 @@ export class KakaoMapApiClient implements KakaoMapService {
       };
     }
 
+    // 캐시 확인
+    const cacheKey = buildCacheKey(
+      CACHE_PREFIX.KAKAO_MAP,
+      'area',
+      area,
+      category,
+    );
+    if (this.cache) {
+      const cached = await this.cache.get<AreaSearchResult>(cacheKey);
+      if (cached) return cached;
+    }
+
     const searchQuery = `${area} 음식점`;
 
     // 카테고리에 따른 검색
@@ -353,38 +394,58 @@ export class KakaoMapApiClient implements KakaoMapService {
 
     // 결과 없음
     if (totalCount === 0) {
-      return {
+      const result: AreaSearchResult = {
         status: 'not_found',
         totalCount: 0,
         restaurants: [],
         message: `"${area}" 지역에서 식당을 찾을 수 없습니다.`,
       };
+      // not_found도 캐시 (불필요한 API 호출 방지)
+      if (this.cache) {
+        await this.cache.set(cacheKey, result, CACHE_TTL.KAKAO_MAP);
+      }
+      return result;
     }
 
     // 결과가 너무 많음 (50개 초과)
     if (totalCount > 50) {
-      return {
+      const result: AreaSearchResult = {
         status: 'too_many',
         totalCount,
         restaurants: [],
         suggestions: this.generateAreaSuggestions(area),
         message: `"${area}" 지역에 ${totalCount}개의 식당이 있습니다. 더 구체적인 지역을 입력해주세요.`,
       };
+      // too_many도 캐시 (불필요한 API 호출 방지)
+      if (this.cache) {
+        await this.cache.set(cacheKey, result, CACHE_TTL.KAKAO_MAP);
+      }
+      return result;
     }
 
     // 적절한 결과 수
-    return {
+    const result: AreaSearchResult = {
       status: 'ready',
       totalCount: allPlaces.length,
       restaurants: allPlaces.map(place => this.toRestaurantInfo(place)),
       message: `"${area}" 지역에서 ${allPlaces.length}개의 식당을 찾았습니다.`,
     };
+
+    // 캐시 저장
+    if (this.cache) {
+      await this.cache.set(cacheKey, result, CACHE_TTL.KAKAO_MAP);
+    }
+
+    return result;
   }
 }
 
 /**
  * Kakao Map 서비스 생성 팩토리
  */
-export function createKakaoMapService(apiKey?: string): KakaoMapService {
-  return new KakaoMapApiClient(apiKey);
+export function createKakaoMapService(
+  apiKey?: string,
+  cache?: CacheService,
+): KakaoMapService {
+  return new KakaoMapApiClient(apiKey, cache);
 }
