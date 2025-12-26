@@ -124,42 +124,43 @@ Vercel 등에 배포된 서버를 사용할 경우:
 
 식당의 위생 정보를 조회합니다.
 
-**입력 파라미터:**
-
 | 파라미터 | 타입 | 필수 | 설명 |
 |----------|------|------|------|
-| `restaurant_name` | string | ✅ | 식당 상호명 |
-| `region` | string | ✅ | 지역명 (시/구/동) |
+| `restaurant_name` | string | ✅ | 식당 상호명 (최대 100자) |
+| `region` | string | ✅ | 지역명 (최대 50자, 한글 필수) |
 | `include_history` | boolean | | 행정처분 이력 포함 (기본: true) |
-
-**예시:**
 
 ```
 "스타벅스 강남역점 위생등급 알려줘"
 "종로구 본죽 위생정보 조회해줘"
 ```
 
-**응답:**
+#### `search_area_restaurants`
 
-```json
-{
-  "restaurant": {
-    "name": "스타벅스 강남역점",
-    "address": "서울 강남구 강남대로 396",
-    "business_type": "휴게음식점",
-    "category": "카페 > 커피전문점"
-  },
-  "hygiene_grade": {
-    "has_grade": true,
-    "grade": "AAA",
-    "grade_label": "매우 우수",
-    "stars": 3
-  },
-  "violations": {
-    "total_count": 0,
-    "recent_items": []
-  }
-}
+특정 지역 내 식당/카페를 탐색합니다.
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| `area` | string | ✅ | 지역명 (구/동/역) |
+| `category` | string | | `restaurant`, `cafe`, `all` (기본) |
+
+```
+"강남역 근처 식당 찾아줘"
+"홍대 카페 목록 보여줘"
+```
+
+#### `get_bulk_hygiene_info`
+
+여러 식당의 위생정보를 일괄 조회합니다.
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| `restaurants` | array | ✅ | 식당 목록 (최대 50개) |
+| `filter` | string | | `all`, `clean`, `with_violations`, `no_grade` |
+| `limit` | number | | 반환 개수 (기본 10, 최대 100) |
+
+```
+"검색된 식당 중 깨끗한 곳만 알려줘"
 ```
 
 ### REST API
@@ -171,6 +172,8 @@ curl -X POST https://your-server.com/api/restaurant-hygiene \
   -H "Content-Type: application/json" \
   -d '{"restaurant_name": "스타벅스", "region": "강남구"}'
 ```
+
+자세한 API 문서는 [docs/API.md](docs/API.md)를 참조하세요.
 
 ## 개발
 
@@ -205,14 +208,21 @@ clean-plate-mcp/
 │   ├── index.ts              # MCP stdio 서버 진입점
 │   ├── main.ts               # NestJS 서버 진입점
 │   ├── core/                 # 비즈니스 로직
+│   │   └── restaurant-hygiene.core.ts
 │   ├── services/             # API 서비스
 │   │   ├── hygiene-grade.service.ts
 │   │   ├── violation.service.ts
-│   │   └── kakao-map.service.ts
+│   │   ├── kakao-map.service.ts
+│   │   ├── cache.service.ts
+│   │   └── bulk-hygiene.service.ts
 │   ├── modules/              # NestJS 모듈
 │   │   ├── hygiene/          # REST API
 │   │   └── mcp/              # MCP HTTP
+│   ├── providers/            # NestJS DI 프로바이더
 │   ├── utils/                # 유틸리티
+│   │   ├── validation.ts     # 입력 검증
+│   │   ├── api-client.ts     # API 클라이언트
+│   │   └── address-matcher.ts
 │   ├── types/                # 타입 정의
 │   └── config/               # 설정
 ├── tests/                    # 통합 테스트

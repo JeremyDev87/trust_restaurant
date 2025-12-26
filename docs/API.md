@@ -73,6 +73,13 @@ Clean Plate MCP는 두 가지 인터페이스를 제공합니다:
 }
 ```
 
+#### 입력 제한
+
+| 필드 | 제한 |
+|------|------|
+| `restaurant_name` | 최대 100자, 특수문자 불가 (`< > ' " \` ;`) |
+| `region` | 최대 50자, 한글 필수, 특수문자 불가 |
+
 #### 예시 요청
 
 ```
@@ -129,6 +136,132 @@ Clean Plate MCP는 두 가지 인터페이스를 제공합니다:
     "recent_items": [],
     "has_more": false
   }
+}
+```
+
+---
+
+### 도구: `search_area_restaurants`
+
+특정 지역 내 식당과 카페를 탐색합니다.
+
+#### 입력 스키마
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "area": {
+      "type": "string",
+      "description": "지역명 - 구/동/역/장소 이름 (예: 강남구, 역삼동, 역삼역)"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["restaurant", "cafe", "all"],
+      "description": "카테고리 필터",
+      "default": "all"
+    }
+  },
+  "required": ["area"]
+}
+```
+
+#### 입력 제한
+
+| 필드 | 제한 |
+|------|------|
+| `area` | 최대 50자, 한글 필수, 특수문자 불가 |
+
+#### 응답 상태
+
+| 상태 | 설명 |
+|------|------|
+| `ready` | 조회 가능 (50개 이하) |
+| `too_many` | 결과 과다 (50개 초과) - 더 구체적인 지역 입력 필요 |
+| `not_found` | 검색 결과 없음 |
+
+#### 예시 응답 (too_many)
+
+```json
+{
+  "status": "too_many",
+  "total_count": 156,
+  "message": "\"강남구\"에서 156개의 식당/카페가 검색되었습니다.",
+  "suggestions": ["강남구 역삼동", "강남구 삼성동", "강남구 청담동"]
+}
+```
+
+---
+
+### 도구: `get_bulk_hygiene_info`
+
+여러 식당의 위생정보를 일괄 조회하고 필터링합니다.
+
+#### 입력 스키마
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "restaurants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "address": { "type": "string" }
+        }
+      },
+      "description": "조회할 식당 목록"
+    },
+    "filter": {
+      "type": "string",
+      "enum": ["all", "clean", "with_violations", "no_grade"],
+      "description": "필터 옵션",
+      "default": "all"
+    },
+    "limit": {
+      "type": "number",
+      "description": "반환할 최대 식당 수",
+      "default": 10
+    }
+  },
+  "required": ["restaurants"]
+}
+```
+
+#### 입력 제한
+
+| 필드 | 제한 |
+|------|------|
+| `restaurants` | 최대 50개 |
+| `restaurants[].name` | 최대 100자, 특수문자 불가 |
+| `restaurants[].address` | 최대 200자, 특수문자 불가 |
+| `limit` | 1-100 |
+
+#### 필터 옵션
+
+| 필터 | 설명 |
+|------|------|
+| `all` | 모든 식당 |
+| `clean` | 깨끗한 식당 (AAA/AA 등급 + 행정처분 없음) |
+| `with_violations` | 행정처분 이력이 있는 식당 |
+| `no_grade` | 위생등급 미등록 식당 |
+
+#### 예시 응답
+
+```json
+{
+  "total_checked": 10,
+  "matched_count": 3,
+  "results": [
+    {
+      "restaurant": { "name": "스타벅스", "address": "..." },
+      "hygieneGrade": { "hygieneGrade": { "grade": "AAA", ... } },
+      "violations": { "total_count": 0 },
+      "matchReason": "exact"
+    }
+  ]
 }
 ```
 
@@ -204,13 +337,31 @@ curl -X POST https://your-server.com/api/restaurant-hygiene \
 
 ## 에러 코드
 
-| 코드 | 설명 |
-|------|------|
-| `NOT_FOUND` | 식당을 찾을 수 없음 |
-| `MULTIPLE_RESULTS` | 복수의 식당이 검색됨 (더 구체적인 검색 필요) |
-| `API_ERROR` | 식약처 API 오류 |
-| `KAKAO_API_ERROR` | 카카오맵 API 오류 |
-| `INVALID_INPUT` | 잘못된 입력 파라미터 |
+| 코드 | HTTP | 설명 |
+|------|------|------|
+| `INVALID_REQUEST` | 400 | 잘못된 입력 (누락, 형식 오류, 제한 초과) |
+| `NOT_FOUND` | 404 | 식당을 찾을 수 없음 |
+| `MULTIPLE_RESULTS` | 404 | 복수의 식당이 검색됨 (더 구체적인 검색 필요) |
+| `API_ERROR` | 500 | 식약처 API 오류 |
+| `KAKAO_API_ERROR` | 500 | 카카오맵 API 오류 |
+| `UNKNOWN_ERROR` | 500 | 알 수 없는 오류 |
+
+### INVALID_REQUEST 상세
+
+입력 검증 실패 시 상세 정보가 포함됩니다:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "지역명에 한글을 포함해주세요",
+    "details": [
+      { "field": "region", "message": "지역명에 한글을 포함해주세요" }
+    ]
+  }
+}
+```
 
 ---
 
