@@ -62,3 +62,10 @@ export {
   CompareValidationError,
   type CompareRestaurantsService,
 } from './compare-restaurants.service.js';
+
+export {
+  RecommendRestaurantsServiceImpl,
+  createRecommendRestaurantsService,
+  RecommendValidationError,
+  type RecommendRestaurantsService,
+} from './recommend-restaurants.service.js';

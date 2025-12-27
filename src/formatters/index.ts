@@ -23,3 +23,11 @@ export {
   type CompareFormatOptions,
   type FormattedCompareResult,
 } from './compare-formatter.js';
+
+export {
+  formatRecommendResult,
+  formatRecommendResultSimple,
+  formatRecommendResultMarkdown,
+  type RecommendFormatOptions,
+  type FormattedRecommendResult,
+} from './recommend-formatter.js';
