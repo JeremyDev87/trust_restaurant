@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { calculateTrustScore, calculateIndicatorScore, determineGrade } from './trust-score.service.js';
+import {
+  calculateTrustScore,
+  calculateIndicatorScore,
+  determineGrade,
+} from './trust-score.service.js';
 
 describe('trust-score.service', () => {
   describe('calculateIndicatorScore', () => {
@@ -16,27 +20,9 @@ describe('trust-score.service', () => {
       expect(calculateIndicatorScore.violationHistory(2)).toBe(20);
     });
 
-    it('businessDuration scoring', () => {
-      expect(calculateIndicatorScore.businessDuration(10)).toBe(100);
-      expect(calculateIndicatorScore.businessDuration(5)).toBe(80);
-      expect(calculateIndicatorScore.businessDuration(3)).toBe(60);
-      expect(calculateIndicatorScore.businessDuration(1)).toBe(40);
-      expect(calculateIndicatorScore.businessDuration(0)).toBe(20);
-      expect(calculateIndicatorScore.businessDuration(null)).toBe(50);
-    });
-
-    it('rating scoring', () => {
-      expect(calculateIndicatorScore.rating(5.0)).toBe(100);
-      expect(calculateIndicatorScore.rating(4.0)).toBe(80);
-      expect(calculateIndicatorScore.rating(null)).toBe(50);
-    });
-
-    it('reviewCount scoring', () => {
-      expect(calculateIndicatorScore.reviewCount(1000)).toBe(100);
-      expect(calculateIndicatorScore.reviewCount(500)).toBe(80);
-      expect(calculateIndicatorScore.reviewCount(100)).toBe(60);
-      expect(calculateIndicatorScore.reviewCount(50)).toBe(40);
-      expect(calculateIndicatorScore.reviewCount(10)).toBe(20);
+    it('haccp scoring', () => {
+      expect(calculateIndicatorScore.haccp(true)).toBe(100);
+      expect(calculateIndicatorScore.haccp(false)).toBe(30);
     });
 
     it('franchise scoring', () => {
@@ -55,17 +41,62 @@ describe('trust-score.service', () => {
   });
 
   describe('calculateTrustScore', () => {
-    it('calculates weighted score', () => {
+    it('calculates weighted score for HACCP certified restaurant', () => {
+      // 위생등급 AAA(100)*0.35 + 행정처분 0건(100)*0.30 + HACCP(100)*0.25 + 프랜차이즈(70)*0.10
+      // = 35 + 30 + 25 + 7 = 97
+      const result = calculateTrustScore({
+        hygieneGrade: 'AAA',
+        violationCount: 0,
+        isHaccpCertified: true,
+        isFranchise: true,
+      });
+      expect(result.score).toBe(97);
+      expect(result.grade).toBe('A');
+      expect(result.message).toBe('안심하고 가세요');
+    });
+
+    it('calculates weighted score for non-certified restaurant', () => {
+      // 위생등급 null(40)*0.35 + 행정처분 2건(20)*0.30 + HACCP없음(30)*0.25 + 비프랜(50)*0.10
+      // = 14 + 6 + 7.5 + 5 = 32.5 → 33
       const result = calculateTrustScore({
         hygieneGrade: null,
-        violationCount: 0,
-        businessYears: 7,
-        rating: 4.2,
-        reviewCount: 523,
+        violationCount: 2,
+        isHaccpCertified: false,
         isFranchise: false,
       });
-      expect(result.score).toBe(73);
-      expect(result.grade).toBe('B');
+      expect(result.score).toBe(33);
+      expect(result.grade).toBe('D');
+      expect(result.message).toBe('주의가 필요합니다');
+    });
+
+    it('returns correct details', () => {
+      const result = calculateTrustScore({
+        hygieneGrade: 'AA',
+        violationCount: 1,
+        isHaccpCertified: true,
+        isFranchise: false,
+      });
+      expect(result.details).toEqual({
+        hygieneGrade: 'AA',
+        violationCount: 1,
+        isHaccpCertified: true,
+        isFranchise: false,
+      });
+    });
+
+    it('returns correct indicator scores', () => {
+      const result = calculateTrustScore({
+        hygieneGrade: 'A',
+        violationCount: 0,
+        isHaccpCertified: false,
+        isFranchise: true,
+      });
+      expect(result.indicatorScores).toEqual({
+        hygieneGrade: 60,
+        violationHistory: 100,
+        haccp: 30,
+        franchise: 70,
+      });
     });
   });
 });

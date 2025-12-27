@@ -1,5 +1,5 @@
 /**
- * 신뢰도 점수 시스템 타입 정의
+ * 신뢰도 점수 시스템 타입 정의 (v2 - HACCP 추가)
  */
 
 export type TrustGrade = 'A' | 'B' | 'C' | 'D';
@@ -7,18 +7,14 @@ export type TrustGrade = 'A' | 'B' | 'C' | 'D';
 export interface TrustIndicatorScores {
   hygieneGrade: number;
   violationHistory: number;
-  businessDuration: number;
-  rating: number;
-  reviewCount: number;
+  haccp: number;
   franchise: number;
 }
 
 export interface TrustIndicatorDetails {
   hygieneGrade: string | null;
   violationCount: number;
-  businessYears: number | null;
-  rating: number | null;
-  reviewCount: number;
+  isHaccpCertified: boolean;
   isFranchise: boolean;
 }
 
@@ -31,12 +27,10 @@ export interface TrustScoreResult {
 }
 
 export const TRUST_SCORE_WEIGHTS = {
-  hygieneGrade: 0.25,
-  violationHistory: 0.20,
-  businessDuration: 0.20,
-  rating: 0.20,
-  reviewCount: 0.10,
-  franchise: 0.05,
+  hygieneGrade: 0.35,
+  violationHistory: 0.3,
+  haccp: 0.25,
+  franchise: 0.1,
 } as const;
 
 export const TRUST_GRADE_MESSAGES: Record<TrustGrade, string> = {

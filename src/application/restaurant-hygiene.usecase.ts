@@ -181,9 +181,7 @@ function buildSuccessResult(
   const trustScore = calculateTrustScore({
     hygieneGrade: hygieneGrade.grade,
     violationCount: violations.total_count,
-    businessYears: null, // TODO: 향후 영업기간 정보 추가 시 연동
-    rating: null, // TODO: 향후 평점 정보 추가 시 연동
-    reviewCount: 0, // TODO: 향후 리뷰 수 정보 추가 시 연동
+    isHaccpCertified: false, // TODO: HACCP 서비스 연동 후 실제 값으로 대체
     isFranchise: isFranchise(name),
   });
 
