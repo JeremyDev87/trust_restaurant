@@ -12,3 +12,6 @@ export * from './kakao/index.js';
 
 // Naver Local Search API
 export * from './naver/index.js';
+
+// Government Data Portal (공공데이터포털)
+export * from './gov-data/index.js';
