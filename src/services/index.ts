@@ -49,3 +49,9 @@ export {
   createRestaurantIntelligenceService,
   type RestaurantIntelligenceService,
 } from './restaurant-intelligence.service.js';
+
+export {
+  EnhancedAreaSearchServiceImpl,
+  createEnhancedAreaSearchService,
+  type EnhancedAreaSearchService,
+} from './enhanced-area-search.service.js';

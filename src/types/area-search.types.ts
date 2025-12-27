@@ -35,6 +35,81 @@ export interface AreaSearchResult {
   message: string;
 }
 
+
+/**
+ * 지역 요약 통계
+ */
+export interface AreaSummary {
+  /** 평균 평점 */
+  avgRating: number | null;
+  /** 위생등급 보유 식당 수 */
+  withHygieneGrade: number;
+  /** 깨끗한 식당 비율 (예: "53%") */
+  cleanRatio: string;
+  /** 등급별 분포 */
+  gradeDistribution: {
+    AAA: number;
+    AA: number;
+    A: number;
+  };
+}
+
+/**
+ * 확장된 위생 정보
+ */
+export interface EnhancedHygieneInfo {
+  /** 위생등급 */
+  grade: 'AAA' | 'AA' | 'A' | null;
+  /** 별점 (0-3) */
+  stars: number;
+  /** 행정처분 여부 */
+  hasViolations: boolean;
+}
+
+/**
+ * 확장된 평점 정보
+ */
+export interface EnhancedRatingsInfo {
+  /** 카카오 평점 */
+  kakao: number | null;
+  /** 네이버 평점 */
+  naver: number | null;
+  /** 통합 평점 */
+  combined: number | null;
+}
+
+/**
+ * 확장된 식당 정보
+ */
+export interface EnhancedRestaurantInfo extends RestaurantInfo {
+  /** 위생 정보 */
+  hygiene?: EnhancedHygieneInfo;
+  /** 평점 정보 */
+  ratings?: EnhancedRatingsInfo;
+  /** 가격대 */
+  priceRange?: 'low' | 'medium' | 'high' | null;
+  /** 영업시간 */
+  businessHours?: string | null;
+}
+
+/**
+ * 확장된 지역 검색 결과
+ */
+export interface EnhancedAreaSearchResult {
+  /** 검색 상태 */
+  status: AreaSearchStatus;
+  /** 총 검색 결과 수 */
+  totalCount: number;
+  /** 지역 요약 통계 (status='ready'일 때만) */
+  summary?: AreaSummary;
+  /** 확장된 식당 목록 */
+  restaurants: EnhancedRestaurantInfo[];
+  /** 지역 세분화 제안 (status='too_many'일 때) */
+  suggestions?: string[];
+  /** 상태 설명 메시지 */
+  message: string;
+}
+
 /**
  * 위생정보 필터 타입
  */
@@ -85,6 +160,12 @@ export interface SearchAreaRestaurantsInput {
   area: string;
   /** 카테고리 필터 */
   category?: 'restaurant' | 'cafe' | 'all';
+  /** 최소 평점 (0-5) */
+  minRating?: number;
+  /** 위생등급 필터 */
+  hygieneGrade?: ('AAA' | 'AA' | 'A')[];
+  /** 정렬 기준 */
+  sortBy?: 'rating' | 'hygiene' | 'reviews' | 'distance';
 }
 
 /**
