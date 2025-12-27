@@ -127,6 +127,66 @@ describe('RestaurantIntelligenceService', () => {
       expect(result).toBeNull();
     });
 
+    it('should return null when name is empty', async () => {
+      const service = new RestaurantIntelligenceServiceImpl(
+        kakaoMapService,
+        hygieneGradeService,
+        violationService,
+        naverPlaceService,
+        cacheService,
+      );
+
+      const result = await service.getRestaurantIntelligence('', '강남구');
+
+      expect(result).toBeNull();
+      expect(kakaoMapService.searchRestaurant).not.toHaveBeenCalled();
+    });
+
+    it('should return null when region is empty', async () => {
+      const service = new RestaurantIntelligenceServiceImpl(
+        kakaoMapService,
+        hygieneGradeService,
+        violationService,
+        naverPlaceService,
+        cacheService,
+      );
+
+      const result = await service.getRestaurantIntelligence('맛있는 식당', '');
+
+      expect(result).toBeNull();
+      expect(kakaoMapService.searchRestaurant).not.toHaveBeenCalled();
+    });
+
+    it('should return null when name is whitespace only', async () => {
+      const service = new RestaurantIntelligenceServiceImpl(
+        kakaoMapService,
+        hygieneGradeService,
+        violationService,
+        naverPlaceService,
+        cacheService,
+      );
+
+      const result = await service.getRestaurantIntelligence('   ', '강남구');
+
+      expect(result).toBeNull();
+      expect(kakaoMapService.searchRestaurant).not.toHaveBeenCalled();
+    });
+
+    it('should return null when region is whitespace only', async () => {
+      const service = new RestaurantIntelligenceServiceImpl(
+        kakaoMapService,
+        hygieneGradeService,
+        violationService,
+        naverPlaceService,
+        cacheService,
+      );
+
+      const result = await service.getRestaurantIntelligence('맛있는 식당', '   ');
+
+      expect(result).toBeNull();
+      expect(kakaoMapService.searchRestaurant).not.toHaveBeenCalled();
+    });
+
     it('should return complete restaurant intelligence with all data sources', async () => {
       const service = new RestaurantIntelligenceServiceImpl(
         kakaoMapService,

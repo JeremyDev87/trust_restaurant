@@ -7,16 +7,16 @@
 import type { PriceRange } from './naver-place.types.js';
 
 /**
- * 위생등급 타입
+ * 위생등급 타입 (종합 정보용)
  */
-export type HygieneGradeLevel = 'AAA' | 'AA' | 'A' | null;
+export type IntelligenceHygieneGrade = 'AAA' | 'AA' | 'A' | null;
 
 /**
  * 위생 정보
  */
 export interface HygieneInfo {
   /** 위생등급 (AAA, AA, A, null) */
-  grade: HygieneGradeLevel;
+  grade: IntelligenceHygieneGrade;
   /** 등급 레이블 (매우 우수, 우수, 좋음) */
   gradeLabel: string | null;
   /** 별점 (0-3) */

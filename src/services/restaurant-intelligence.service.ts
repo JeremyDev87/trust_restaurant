@@ -10,9 +10,8 @@ import type {
   HygieneInfo,
   RatingsInfo,
   ScoresInfo,
-  HygieneGradeLevel,
+  IntelligenceHygieneGrade,
 } from '../types/restaurant-intelligence.types.js';
-import type { PriceRange } from '../types/naver-place.types.js';
 import type { KakaoMapService } from './kakao-map.service.js';
 import type { NaverPlaceService } from './naver-place.service.js';
 import type { HygieneGradeService, HygieneGradeItem } from './hygiene-grade.service.js';
@@ -85,6 +84,11 @@ export class RestaurantIntelligenceServiceImpl
     name: string,
     region: string,
   ): Promise<RestaurantIntelligence | null> {
+    // 입력값 검증
+    if (!name?.trim() || !region?.trim()) {
+      return null;
+    }
+
     const cacheKey = buildCacheKey(
       CACHE_PREFIX.RESTAURANT_INTELLIGENCE,
       name,
@@ -175,7 +179,7 @@ export class RestaurantIntelligenceServiceImpl
     const { grade, grade_label, stars } = hygieneResult.hygieneGrade;
 
     return {
-      grade: grade as HygieneGradeLevel,
+      grade: grade as IntelligenceHygieneGrade,
       gradeLabel: grade_label,
       stars,
       hasViolations: violationCount > 0,
