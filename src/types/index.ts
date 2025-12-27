@@ -7,3 +7,4 @@ export * from './domain/index.js';
 export * from './kakao-map.types.js';
 export * from './area-search.types.js';
 export * from './naver-place.types.js';
+export * from './restaurant-intelligence.types.js';

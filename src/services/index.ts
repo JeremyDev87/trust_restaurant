@@ -43,3 +43,9 @@ export {
   createNaverPlaceService,
   type NaverPlaceService,
 } from './naver-place.service.js';
+
+export {
+  RestaurantIntelligenceServiceImpl,
+  createRestaurantIntelligenceService,
+  type RestaurantIntelligenceService,
+} from './restaurant-intelligence.service.js';
