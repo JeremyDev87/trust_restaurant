@@ -4,7 +4,7 @@
  * I2630 API를 사용하여 식품접객업 행정처분 정보를 조회합니다.
  */
 
-import type { I2630Response, I2630Row } from '../types/api/i2630.types.js';
+import type { I2630Response, I2630Row } from '../types/api/food-safety/i2630.types.js';
 import type {
   ViolationItem,
   ViolationHistory,

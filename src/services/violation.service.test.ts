@@ -4,7 +4,7 @@ import {
   createViolationService,
 } from './violation.service.js';
 import { FoodSafetyApiClient } from '../utils/api-client.js';
-import type { I2630Response } from '../types/api/i2630.types.js';
+import type { I2630Response } from '../types/api/food-safety/i2630.types.js';
 
 describe('ViolationService', () => {
   let mockClient: FoodSafetyApiClient;

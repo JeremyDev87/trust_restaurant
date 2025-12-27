@@ -4,7 +4,7 @@ import {
   createHygieneGradeService,
 } from './hygiene-grade.service.js';
 import { FoodSafetyApiClient } from '../utils/api-client.js';
-import type { C004Response } from '../types/api/c004.types.js';
+import type { C004Response } from '../types/api/food-safety/c004.types.js';
 
 describe('HygieneGradeService', () => {
   let mockClient: FoodSafetyApiClient;
