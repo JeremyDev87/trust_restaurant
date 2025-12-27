@@ -326,7 +326,7 @@ export class McpController {
           result = {
             protocolVersion: params?.protocolVersion || '2024-11-05',
             capabilities: { tools: { listChanged: false } },
-            serverInfo: { name: 'clean-plate-mcp', version: '1.0.0' },
+            serverInfo: { name: 'trust-restaurant', version: '1.0.0' },
           };
           break;
 
@@ -378,7 +378,7 @@ export class McpController {
   handleGet(@Res() res: Response) {
     return res.json({
       status: 'ok',
-      server: 'clean-plate-mcp',
+      server: 'trust-restaurant',
       version: '1.0.0',
     });
   }

@@ -1,12 +1,12 @@
 {
-  "name": "clean-plate-mcp",
+  "name": "trust-restaurant",
   "version": "1.0.0",
   "description": "식약처 공인 데이터 기반 식당 위생 정보 조회 MCP 서버",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "clean-plate-mcp": "dist/index.js"
+    "trust-restaurant": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -33,15 +33,15 @@
     "claude",
     "ai"
   ],
-  "author": "Clean Plate MCP Contributors",
+  "author": "",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/username/clean-plate-mcp.git"
+    "url": "git+https://github.com/Jeremy-in-seoul/trust-restaurant.git"
   },
-  "homepage": "https://github.com/username/clean-plate-mcp#readme",
+  "homepage": "https://github.com/Jeremy-in-seoul/trust-restaurant#readme",
   "bugs": {
-    "url": "https://github.com/username/clean-plate-mcp/issues"
+    "url": "https://github.com/Jeremy-in-seoul/trust-restaurant/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
@@ -64,7 +64,7 @@
     "@vercel/node": "^5.5.16",
     "@vitest/coverage-v8": "^2.0.0",
     "eslint": "^8.57.0",
-    "eslint-config-prettier": "^10.0.0",
+    "eslint-config-prettier": "^10.1.8",
     "globals": "^16.0.0",
     "msw": "^2.6.0",
     "prettier": "^3.4.0",

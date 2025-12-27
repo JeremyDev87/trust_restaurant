@@ -36,7 +36,7 @@ const bulkHygieneService = createBulkHygieneService(
  * 식약처 공인 데이터 기반 식당 위생 정보 조회 서비스
  */
 const server = new McpServer({
-  name: 'clean-plate-mcp',
+  name: 'trust-restaurant',
   version: '1.0.0',
 });
 
