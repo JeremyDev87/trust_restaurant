@@ -70,3 +70,10 @@ export {
   RecommendValidationError,
   type RecommendRestaurantsService,
 } from '../application/recommend-restaurants.usecase.js';
+
+export {
+  calculateTrustScore,
+  calculateIndicatorScore,
+  determineGrade,
+  type TrustScoreInput,
+} from './trust-score.service.js';

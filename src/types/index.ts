@@ -10,3 +10,4 @@ export * from './naver-place.types.js';
 export * from './restaurant-intelligence.types.js';
 export * from './compare.types.js';
 export * from './recommend.types.js';
+export * from './trust-score.types.js';
