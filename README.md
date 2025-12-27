@@ -16,6 +16,9 @@ Clean Plate MCP는 [Model Context Protocol (MCP)](https://modelcontextprotocol.i
 - **행정처분 이력**: 최근 3년간 행정처분 내역 조회
 - **카카오맵 연동**: 정확한 식당 검색을 위한 카카오맵 API 통합
 - **다중 인터페이스**: MCP (stdio/HTTP) 및 REST API 지원
+- **스마트 추천**: 목적, 카테고리, 우선순위 기반 맞춤형 식당 추천
+- **식당 비교**: 여러 식당의 위생등급, 평점, 가성비 비교 분석
+- **강화된 검색**: 평점/위생등급 필터 및 정렬 기능 지원
 
 ## 설치
 
@@ -137,16 +140,20 @@ Vercel 등에 배포된 서버를 사용할 경우:
 
 #### `search_area_restaurants`
 
-특정 지역 내 식당/카페를 탐색합니다.
+특정 지역 내 식당/카페를 탐색합니다. (확장된 필터/정렬 기능 포함)
 
 | 파라미터 | 타입 | 필수 | 설명 |
 |----------|------|------|------|
 | `area` | string | ✅ | 지역명 (구/동/역) |
 | `category` | string | | `restaurant`, `cafe`, `all` (기본) |
+| `minRating` | number | | 최소 평점 필터 (0-5) |
+| `hygieneGrade` | array | | 위생등급 필터 (AAA, AA, A) |
+| `sortBy` | string | | 정렬: `rating`, `hygiene`, `reviews`, `distance` |
 
 ```
 "강남역 근처 식당 찾아줘"
 "홍대 카페 목록 보여줘"
+"역삼동 평점 4점 이상 AAA 등급 식당 찾아줘"
 ```
 
 #### `get_bulk_hygiene_info`
@@ -161,6 +168,38 @@ Vercel 등에 배포된 서버를 사용할 경우:
 
 ```
 "검색된 식당 중 깨끗한 곳만 알려줘"
+```
+
+#### `recommend_restaurants`
+
+조건 기반 스마트 식당 추천 기능을 제공합니다.
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| `area` | string | ✅ | 지역명 (구/동/역) |
+| `purpose` | string | | 목적: `회식`, `데이트`, `가족모임`, `혼밥`, `비즈니스미팅` |
+| `category` | string | | 카테고리: `한식`, `중식`, `일식`, `양식`, `카페`, `전체` |
+| `priority` | string | | 우선순위: `hygiene`, `rating`, `balanced` (기본) |
+| `budget` | string | | 예산: `low`, `medium`, `high`, `any` (기본) |
+| `limit` | number | | 반환 개수 (기본 5, 최대 10) |
+
+```
+"강남역 회식 장소 추천해줘"
+"역삼동 데이트 일식집 위생 우선으로 추천해줘"
+```
+
+#### `compare_restaurants`
+
+여러 식당을 비교 분석합니다.
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| `restaurants` | array | ✅ | 비교할 식당 목록 (2-5개) |
+| `criteria` | array | | 비교 항목: `hygiene`, `rating`, `price`, `reviews` |
+
+```
+"스타벅스 강남점과 투썸 역삼점 비교해줘"
+"본죽, 죽이야기, 본죽&비빔밥 위생등급 비교해줘"
 ```
 
 ### REST API

@@ -143,7 +143,7 @@ Clean Plate MCP는 두 가지 인터페이스를 제공합니다:
 
 ### 도구: `search_area_restaurants`
 
-특정 지역 내 식당과 카페를 탐색합니다.
+특정 지역 내 식당과 카페를 탐색합니다. (확장된 필터/정렬 기능 포함)
 
 #### 입력 스키마
 
@@ -160,9 +160,70 @@ Clean Plate MCP는 두 가지 인터페이스를 제공합니다:
       "enum": ["restaurant", "cafe", "all"],
       "description": "카테고리 필터",
       "default": "all"
+    },
+    "minRating": {
+      "type": "number",
+      "description": "최소 평점 필터 (0-5)",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "hygieneGrade": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["AAA", "AA", "A"]
+      },
+      "description": "위생등급 필터 (예: [\"AAA\", \"AA\"])"
+    },
+    "sortBy": {
+      "type": "string",
+      "enum": ["rating", "hygiene", "reviews", "distance"],
+      "description": "정렬 기준"
     }
   },
   "required": ["area"]
+}
+```
+
+#### 출력 스키마
+
+```json
+{
+  "status": "ready | too_many | not_found",
+  "totalCount": "number",
+  "summary": {
+    "avgRating": "number | null",
+    "withHygieneGrade": "number",
+    "cleanRatio": "string (예: '53%')",
+    "gradeDistribution": {
+      "AAA": "number",
+      "AA": "number",
+      "A": "number"
+    }
+  },
+  "restaurants": [
+    {
+      "name": "string",
+      "address": "string",
+      "roadAddress": "string",
+      "category": "string",
+      "phone": "string",
+      "hygiene": {
+        "grade": "AAA | AA | A | null",
+        "stars": "number (0-3)",
+        "hasViolations": "boolean"
+      },
+      "ratings": {
+        "kakao": "number | null",
+        "naver": "number | null",
+        "combined": "number | null"
+      },
+      "priceRange": "low | medium | high | null",
+      "businessHours": "string | null"
+    }
+  ],
+  "suggestions": ["string (지역 세분화 제안, too_many일 때)"],
+  "message": "string"
 }
 ```
 
@@ -171,6 +232,8 @@ Clean Plate MCP는 두 가지 인터페이스를 제공합니다:
 | 필드 | 제한 |
 |------|------|
 | `area` | 최대 50자, 한글 필수, 특수문자 불가 |
+| `minRating` | 0-5 범위 |
+| `hygieneGrade` | AAA, AA, A 중 선택 |
 
 #### 응답 상태
 
@@ -180,14 +243,64 @@ Clean Plate MCP는 두 가지 인터페이스를 제공합니다:
 | `too_many` | 결과 과다 (50개 초과) - 더 구체적인 지역 입력 필요 |
 | `not_found` | 검색 결과 없음 |
 
+#### 예시 요청
+
+```
+"역삼동 식당 중 평점 4점 이상만 보여줘"
+"강남역 위생등급 AAA 카페 찾아줘"
+"홍대입구 식당 평점순 정렬해서 보여줘"
+```
+
+#### 예시 응답 (ready)
+
+```json
+{
+  "status": "ready",
+  "totalCount": 15,
+  "summary": {
+    "avgRating": 4.2,
+    "withHygieneGrade": 8,
+    "cleanRatio": "53%",
+    "gradeDistribution": {
+      "AAA": 3,
+      "AA": 4,
+      "A": 1
+    }
+  },
+  "restaurants": [
+    {
+      "name": "스타벅스 역삼역점",
+      "address": "서울 강남구 역삼동 123-45",
+      "roadAddress": "서울 강남구 테헤란로 123",
+      "category": "카페 > 커피전문점",
+      "phone": "02-1234-5678",
+      "hygiene": {
+        "grade": "AAA",
+        "stars": 3,
+        "hasViolations": false
+      },
+      "ratings": {
+        "kakao": 4.3,
+        "naver": 4.5,
+        "combined": 4.4
+      },
+      "priceRange": "medium",
+      "businessHours": "07:00 - 22:00"
+    }
+  ],
+  "message": "\"역삼동\" 지역에서 15개의 식당을 찾았습니다."
+}
+```
+
 #### 예시 응답 (too_many)
 
 ```json
 {
   "status": "too_many",
-  "total_count": 156,
-  "message": "\"강남구\"에서 156개의 식당/카페가 검색되었습니다.",
-  "suggestions": ["강남구 역삼동", "강남구 삼성동", "강남구 청담동"]
+  "totalCount": 156,
+  "restaurants": [],
+  "suggestions": ["강남구 역삼동", "강남구 삼성동", "강남구 청담동"],
+  "message": "\"강남구\"에서 156개의 식당/카페가 검색되었습니다."
 }
 ```
 
@@ -262,6 +375,329 @@ Clean Plate MCP는 두 가지 인터페이스를 제공합니다:
       "matchReason": "exact"
     }
   ]
+}
+```
+
+---
+
+### 도구: `recommend_restaurants`
+
+조건 기반 스마트 식당 추천 기능을 제공합니다.
+
+#### 입력 스키마
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "area": {
+      "type": "string",
+      "description": "지역명 (필수) - 구/동/역 이름"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": ["회식", "데이트", "가족모임", "혼밥", "비즈니스미팅"],
+      "description": "방문 목적"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["한식", "중식", "일식", "양식", "카페", "전체"],
+      "description": "음식 카테고리"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["hygiene", "rating", "balanced"],
+      "description": "우선순위 모드 (hygiene: 위생, rating: 평점, balanced: 균형)",
+      "default": "balanced"
+    },
+    "budget": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "any"],
+      "description": "예산 수준",
+      "default": "any"
+    },
+    "limit": {
+      "type": "number",
+      "description": "반환할 추천 식당 수",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 10
+    }
+  },
+  "required": ["area"]
+}
+```
+
+#### 출력 스키마
+
+```json
+{
+  "status": "success | no_results | area_too_broad",
+  "area": "string",
+  "filters": {
+    "purpose": "string | undefined",
+    "category": "string | undefined",
+    "priority": "string",
+    "budget": "string | undefined"
+  },
+  "totalCandidates": "number",
+  "recommendations": [
+    {
+      "rank": "number",
+      "name": "string",
+      "address": "string",
+      "category": "string",
+      "hygiene": {
+        "grade": "AAA | AA | A | null",
+        "stars": "number (0-3)",
+        "hasViolations": "boolean"
+      },
+      "rating": {
+        "combined": "number | null",
+        "reviewCount": "number"
+      },
+      "priceRange": "low | medium | high | null",
+      "scores": {
+        "total": "number (0-100)",
+        "hygiene": "number",
+        "rating": "number",
+        "reviews": "number",
+        "purpose": "number"
+      },
+      "highlights": ["string"]
+    }
+  ],
+  "message": "string"
+}
+```
+
+#### 예시 요청
+
+```
+"강남역 회식 장소 추천해줘"
+"역삼동 데이트 코스 일식집 추천해줘"
+"홍대 가성비 좋은 한식집 위생 우선으로 추천해줘"
+```
+
+#### 예시 응답
+
+```json
+{
+  "status": "success",
+  "area": "역삼동",
+  "filters": {
+    "purpose": "회식",
+    "category": "한식",
+    "priority": "balanced",
+    "budget": "any"
+  },
+  "totalCandidates": 25,
+  "recommendations": [
+    {
+      "rank": 1,
+      "name": "본가 역삼점",
+      "address": "서울 강남구 역삼동 123-45",
+      "category": "한식 > 삼겹살",
+      "hygiene": {
+        "grade": "AAA",
+        "stars": 3,
+        "hasViolations": false
+      },
+      "rating": {
+        "combined": 4.5,
+        "reviewCount": 320
+      },
+      "priceRange": "medium",
+      "scores": {
+        "total": 85,
+        "hygiene": 35,
+        "rating": 32,
+        "reviews": 8,
+        "purpose": 10
+      },
+      "highlights": ["AAA 등급", "평점 4.5", "행정처분 없음", "리뷰 320개"]
+    }
+  ],
+  "message": "\"역삼동\" 회식 추천 Top 5 (균형 모드)"
+}
+```
+
+---
+
+### 도구: `compare_restaurants`
+
+여러 식당을 비교 분석하여 최적의 선택을 돕습니다.
+
+#### 입력 스키마
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "restaurants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "식당명"
+          },
+          "region": {
+            "type": "string",
+            "description": "지역명"
+          }
+        },
+        "required": ["name", "region"]
+      },
+      "description": "비교할 식당 목록 (최소 2개, 최대 5개)",
+      "minItems": 2,
+      "maxItems": 5
+    },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["hygiene", "rating", "price", "reviews"]
+      },
+      "description": "비교 항목 선택 (1~4개)",
+      "default": ["hygiene", "rating", "price", "reviews"]
+    }
+  },
+  "required": ["restaurants"]
+}
+```
+
+#### 출력 스키마
+
+```json
+{
+  "status": "complete | partial",
+  "message": "string",
+  "found": ["string"],
+  "notFound": ["string"],
+  "comparison": {
+    "restaurants": [
+      {
+        "name": "string",
+        "address": "string",
+        "hygiene": {
+          "grade": "AAA | AA | A | null",
+          "stars": "number",
+          "hasViolations": "boolean"
+        },
+        "rating": {
+          "kakao": "number | null",
+          "naver": "number | null",
+          "combined": "number | null",
+          "reviewCount": "number"
+        },
+        "priceRange": "low | medium | high | null",
+        "scores": {
+          "hygiene": "number",
+          "popularity": "number",
+          "overall": "number"
+        }
+      }
+    ],
+    "analysis": {
+      "bestHygiene": "string | null",
+      "bestRating": "string | null",
+      "bestValue": "string | null",
+      "recommendation": "string"
+    }
+  }
+}
+```
+
+#### 예시 요청
+
+```
+"스타벅스 강남역점, 투썸플레이스 역삼점, 이디야 테헤란로점 비교해줘"
+"본죽 강남점과 죽이야기 역삼점 위생등급 비교해줘"
+```
+
+#### 예시 응답
+
+```json
+{
+  "status": "complete",
+  "message": "3개 식당 비교 완료",
+  "found": ["스타벅스 강남역점", "투썸플레이스 역삼점", "이디야 테헤란로점"],
+  "notFound": [],
+  "comparison": {
+    "restaurants": [
+      {
+        "name": "스타벅스 강남역점",
+        "address": "서울 강남구 강남대로 396",
+        "hygiene": {
+          "grade": "AAA",
+          "stars": 3,
+          "hasViolations": false
+        },
+        "rating": {
+          "kakao": 4.3,
+          "naver": 4.5,
+          "combined": 4.4,
+          "reviewCount": 520
+        },
+        "priceRange": "medium",
+        "scores": {
+          "hygiene": 95,
+          "popularity": 88,
+          "overall": 91
+        }
+      },
+      {
+        "name": "투썸플레이스 역삼점",
+        "address": "서울 강남구 역삼동 123",
+        "hygiene": {
+          "grade": "AA",
+          "stars": 2,
+          "hasViolations": false
+        },
+        "rating": {
+          "kakao": 4.1,
+          "naver": 4.2,
+          "combined": 4.15,
+          "reviewCount": 280
+        },
+        "priceRange": "medium",
+        "scores": {
+          "hygiene": 80,
+          "popularity": 72,
+          "overall": 76
+        }
+      },
+      {
+        "name": "이디야 테헤란로점",
+        "address": "서울 강남구 테헤란로 100",
+        "hygiene": {
+          "grade": "A",
+          "stars": 1,
+          "hasViolations": false
+        },
+        "rating": {
+          "kakao": 4.0,
+          "naver": 4.1,
+          "combined": 4.05,
+          "reviewCount": 150
+        },
+        "priceRange": "low",
+        "scores": {
+          "hygiene": 65,
+          "popularity": 60,
+          "overall": 62
+        }
+      }
+    ],
+    "analysis": {
+      "bestHygiene": "스타벅스 강남역점",
+      "bestRating": "스타벅스 강남역점",
+      "bestValue": "이디야 테헤란로점",
+      "recommendation": "위생과 평점 모두 고려 시 \"스타벅스 강남역점\" 추천"
+    }
+  }
 }
 ```
 
