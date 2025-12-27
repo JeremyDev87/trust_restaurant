@@ -35,7 +35,9 @@ import {
   createCacheService,
   type CacheService,
 } from '../services/cache.service.js';
-import { formatSummary } from '../formatters/index.js';
+import { formatSummary, formatTrustScoreSimple } from '../formatters/index.js';
+import { calculateTrustScore } from '../services/trust-score.service.js';
+import { isFranchise } from '../utils/franchise-detector.js';
 import type {
   RestaurantHygieneResult,
   HygieneGrade,
@@ -175,6 +177,16 @@ function buildSuccessResult(
   phone?: string,
   category?: string,
 ): HygieneSuccessResult {
+  // 신뢰도 점수 계산
+  const trustScore = calculateTrustScore({
+    hygieneGrade: hygieneGrade.grade,
+    violationCount: violations.total_count,
+    businessYears: null, // TODO: 향후 영업기간 정보 추가 시 연동
+    rating: null, // TODO: 향후 평점 정보 추가 시 연동
+    reviewCount: 0, // TODO: 향후 리뷰 수 정보 추가 시 연동
+    isFranchise: isFranchise(name),
+  });
+
   const data: RestaurantHygieneResult = {
     restaurant: {
       name,
@@ -185,14 +197,16 @@ function buildSuccessResult(
     },
     hygiene_grade: hygieneGrade,
     violations,
+    trust_score: trustScore,
   };
 
   const summaryResult = formatSummary(data);
+  const trustScoreLine = formatTrustScoreSimple(trustScore);
 
   return {
     success: true,
     data,
-    summary: summaryResult.text,
+    summary: `${trustScoreLine}\n${summaryResult.text}`,
   };
 }
 

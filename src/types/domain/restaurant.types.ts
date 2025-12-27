@@ -2,6 +2,8 @@
  * 식당 위생 정보 도메인 타입
  */
 
+import type { TrustScoreResult } from '../trust-score.types.js';
+
 /**
  * 위생 등급 코드
  */
@@ -86,6 +88,8 @@ export interface RestaurantHygieneResult {
   restaurant: Restaurant;
   hygiene_grade: HygieneGrade;
   violations: ViolationHistory;
+  /** 신뢰도 점수 (선택적 - 계산에 필요한 정보가 있을 때만) */
+  trust_score?: TrustScoreResult;
 }
 
 /**

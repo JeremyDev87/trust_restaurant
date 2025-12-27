@@ -31,3 +31,12 @@ export {
   type RecommendFormatOptions,
   type FormattedRecommendResult,
 } from './recommend-formatter.js';
+
+export {
+  formatTrustScore,
+  formatTrustScoreSimple,
+  formatTrustScoreHeader,
+  formatScoreBar,
+  formatIndicatorDetails,
+  type FormattedTrustScore,
+} from './trust-score-formatter.js';
