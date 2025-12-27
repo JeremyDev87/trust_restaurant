@@ -35,6 +35,10 @@ import {
   createCacheService,
   type CacheService,
 } from '../services/cache.service.js';
+import {
+  createHaccpService,
+  type HaccpService,
+} from '../services/haccp.service.js';
 import { formatSummary, formatTrustScoreSimple } from '../formatters/index.js';
 import { calculateTrustScore } from '../services/trust-score.service.js';
 import { isFranchise } from '../utils/franchise-detector.js';
@@ -52,6 +56,7 @@ export interface HygieneQueryServices {
   kakaoMapService?: KakaoMapService;
   hygieneGradeService?: HygieneGradeService;
   violationService?: ViolationService;
+  haccpService?: HaccpService;
   cacheService?: CacheService;
   apiClient?: FoodSafetyApiClient;
 }
@@ -143,6 +148,25 @@ async function fetchViolationsIfNeeded(
 }
 
 /**
+ * HACCP 인증 여부 확인 (graceful degradation)
+ */
+async function checkHaccpCertification(
+  haccpService: HaccpService | null,
+  companyName: string,
+): Promise<boolean> {
+  if (!haccpService) {
+    // HACCP 서비스 미설정 시 미인증으로 처리
+    return false;
+  }
+  try {
+    return await haccpService.isCompanyCertified(companyName);
+  } catch {
+    // HACCP API 오류 시 미인증으로 처리
+    return false;
+  }
+}
+
+/**
  * 에러를 HygieneErrorResult로 변환
  */
 function mapQueryError(error: unknown): HygieneErrorResult {
@@ -174,6 +198,7 @@ function buildSuccessResult(
   businessType: string,
   hygieneGrade: HygieneGrade,
   violations: ViolationHistory,
+  isHaccpCertified: boolean,
   phone?: string,
   category?: string,
 ): HygieneSuccessResult {
@@ -181,7 +206,7 @@ function buildSuccessResult(
   const trustScore = calculateTrustScore({
     hygieneGrade: hygieneGrade.grade,
     violationCount: violations.total_count,
-    isHaccpCertified: false, // TODO: HACCP 서비스 연동 후 실제 값으로 대체
+    isHaccpCertified,
     isFranchise: isFranchise(name),
   });
 
@@ -231,6 +256,18 @@ function toRestaurantCandidates(
 }
 
 /**
+ * HACCP 서비스 생성 (graceful - API 키 없으면 null 반환)
+ */
+function tryCreateHaccpService(): HaccpService | null {
+  try {
+    return createHaccpService();
+  } catch {
+    // GOV_DATA_KEY가 없으면 null 반환
+    return null;
+  }
+}
+
+/**
  * 서비스 인스턴스 생성 또는 주입된 서비스 사용
  */
 function getServices(injected?: HygieneQueryServices) {
@@ -242,6 +279,7 @@ function getServices(injected?: HygieneQueryServices) {
     injected?.hygieneGradeService || createHygieneGradeService(apiClient);
   const violationService =
     injected?.violationService || createViolationService(apiClient);
+  const haccpService = injected?.haccpService ?? tryCreateHaccpService();
 
   return {
     cacheService,
@@ -249,6 +287,7 @@ function getServices(injected?: HygieneQueryServices) {
     apiClient,
     hygieneGradeService,
     violationService,
+    haccpService,
   };
 }
 
@@ -270,6 +309,7 @@ export async function queryRestaurantHygiene(
     kakaoMapService,
     hygieneGradeService: hygieneService,
     violationService,
+    haccpService,
   } = getServices(services);
 
   try {
@@ -287,6 +327,7 @@ export async function queryRestaurantHygiene(
         include_history,
         hygieneService,
         violationService,
+        haccpService,
       );
     }
 
@@ -321,13 +362,18 @@ export async function queryRestaurantHygiene(
       );
 
       if (searchResult.totalCount === 0) {
-        // 위생등급 미등록 식당
+        // 위생등급 미등록 식당 - HACCP 인증 확인
+        const isHaccpCertified = await checkHaccpCertification(
+          haccpService,
+          place.name,
+        );
         return buildSuccessResult(
           place.name,
           place.roadAddress || place.address,
           '',
           NO_HYGIENE_GRADE,
           EMPTY_VIOLATIONS,
+          isHaccpCertified,
           place.phone,
           place.category,
         );
@@ -335,12 +381,15 @@ export async function queryRestaurantHygiene(
 
       if (searchResult.totalCount === 1) {
         const match = searchResult.items[0];
-        const violations = await fetchViolationsIfNeeded(
-          include_history,
-          violationService,
-          match.name,
-          addressRegion,
-        );
+        const [violations, isHaccpCertified] = await Promise.all([
+          fetchViolationsIfNeeded(
+            include_history,
+            violationService,
+            match.name,
+            addressRegion,
+          ),
+          checkHaccpCertification(haccpService, place.name),
+        ]);
 
         return buildSuccessResult(
           place.name, // 카카오맵 이름 사용
@@ -348,6 +397,7 @@ export async function queryRestaurantHygiene(
           match.businessType,
           match.hygieneGrade,
           violations,
+          isHaccpCertified,
           place.phone,
           place.category,
         );
@@ -355,12 +405,15 @@ export async function queryRestaurantHygiene(
 
       // 여러 개 매칭 - 카카오맵 정보와 가장 유사한 것 선택
       const bestMatch = searchResult.items[0];
-      const violations = await fetchViolationsIfNeeded(
-        include_history,
-        violationService,
-        bestMatch.name,
-        addressRegion,
-      );
+      const [violations, isHaccpCertified] = await Promise.all([
+        fetchViolationsIfNeeded(
+          include_history,
+          violationService,
+          bestMatch.name,
+          addressRegion,
+        ),
+        checkHaccpCertification(haccpService, place.name),
+      ]);
 
       return buildSuccessResult(
         place.name,
@@ -368,18 +421,22 @@ export async function queryRestaurantHygiene(
         bestMatch.businessType,
         bestMatch.hygieneGrade,
         violations,
+        isHaccpCertified,
         place.phone,
         place.category,
       );
     }
 
-    // Step 3: 위생등급 발견 - 행정처분 이력 조회
-    const violations = await fetchViolationsIfNeeded(
-      include_history,
-      violationService,
-      hygieneResult.name,
-      addressRegion,
-    );
+    // Step 3: 위생등급 발견 - 행정처분 이력 및 HACCP 인증 조회
+    const [violations, isHaccpCertified] = await Promise.all([
+      fetchViolationsIfNeeded(
+        include_history,
+        violationService,
+        hygieneResult.name,
+        addressRegion,
+      ),
+      checkHaccpCertification(haccpService, place.name),
+    ]);
 
     return buildSuccessResult(
       place.name, // 카카오맵 이름 사용 (더 정확)
@@ -387,6 +444,7 @@ export async function queryRestaurantHygiene(
       hygieneResult.businessType,
       hygieneResult.hygieneGrade,
       violations,
+      isHaccpCertified,
       place.phone,
       place.category,
     );
@@ -400,6 +458,7 @@ export async function queryRestaurantHygiene(
         include_history,
         hygieneService,
         violationService,
+        haccpService,
       );
     }
 
@@ -418,6 +477,7 @@ async function searchFoodSafetyDirectlyWithServices(
   includeHistory: boolean,
   hygieneService: HygieneGradeService,
   violationService: ViolationService,
+  haccpService: HaccpService | null,
 ): Promise<HygieneQueryResult> {
   // 위생등급 조회
   const hygieneResult = await hygieneService.findExactMatch(
@@ -462,12 +522,15 @@ async function searchFoodSafetyDirectlyWithServices(
 
     // 단일 결과면 그것을 사용
     const singleMatch = searchResult.items[0];
-    const violations = await fetchViolationsIfNeeded(
-      includeHistory,
-      violationService,
-      singleMatch.name,
-      region,
-    );
+    const [violations, isHaccpCertified] = await Promise.all([
+      fetchViolationsIfNeeded(
+        includeHistory,
+        violationService,
+        singleMatch.name,
+        region,
+      ),
+      checkHaccpCertification(haccpService, singleMatch.name),
+    ]);
 
     return buildSuccessResult(
       singleMatch.name,
@@ -475,16 +538,20 @@ async function searchFoodSafetyDirectlyWithServices(
       singleMatch.businessType,
       singleMatch.hygieneGrade,
       violations,
+      isHaccpCertified,
     );
   }
 
   // 정확히 일치하는 식당 발견
-  const violations = await fetchViolationsIfNeeded(
-    includeHistory,
-    violationService,
-    hygieneResult.name,
-    region,
-  );
+  const [violations, isHaccpCertified] = await Promise.all([
+    fetchViolationsIfNeeded(
+      includeHistory,
+      violationService,
+      hygieneResult.name,
+      region,
+    ),
+    checkHaccpCertification(haccpService, hygieneResult.name),
+  ]);
 
   return buildSuccessResult(
     hygieneResult.name,
@@ -492,5 +559,6 @@ async function searchFoodSafetyDirectlyWithServices(
     hygieneResult.businessType,
     hygieneResult.hygieneGrade,
     violations,
+    isHaccpCertified,
   );
 }
