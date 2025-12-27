@@ -38,16 +38,24 @@ describe('CacheService', () => {
   });
 
   describe('CACHE_TTL 상수', () => {
-    it('위생등급 TTL은 7일이다', () => {
-      expect(CACHE_TTL.HYGIENE_GRADE).toBe(7 * 24 * 60 * 60);
+    it('위생등급 TTL은 24시간이다', () => {
+      expect(CACHE_TTL.HYGIENE_GRADE).toBe(24 * 60 * 60);
     });
 
-    it('행정처분 TTL은 7일이다', () => {
-      expect(CACHE_TTL.VIOLATION).toBe(7 * 24 * 60 * 60);
+    it('행정처분 TTL은 24시간이다', () => {
+      expect(CACHE_TTL.VIOLATION).toBe(24 * 60 * 60);
     });
 
-    it('카카오맵 TTL은 1일이다', () => {
-      expect(CACHE_TTL.KAKAO_MAP).toBe(1 * 24 * 60 * 60);
+    it('카카오맵 TTL은 1시간이다', () => {
+      expect(CACHE_TTL.KAKAO_MAP).toBe(1 * 60 * 60);
+    });
+
+    it('네이버 플레이스 TTL은 1시간이다', () => {
+      expect(CACHE_TTL.NAVER_PLACE).toBe(1 * 60 * 60);
+    });
+
+    it('식당 종합 정보 TTL은 1시간이다', () => {
+      expect(CACHE_TTL.RESTAURANT_INTELLIGENCE).toBe(1 * 60 * 60);
     });
   });
 
