@@ -17,6 +17,8 @@ export const CACHE_TTL = {
   VIOLATION: 7 * 24 * 60 * 60,
   /** 카카오맵 검색: 1일 */
   KAKAO_MAP: 1 * 24 * 60 * 60,
+  /** 네이버 플레이스: 1시간 */
+  NAVER_PLACE: 1 * 60 * 60,
 } as const;
 
 /**
@@ -26,6 +28,7 @@ export const CACHE_PREFIX = {
   HYGIENE_GRADE: 'hygiene',
   VIOLATION: 'violation',
   KAKAO_MAP: 'kakao',
+  NAVER_PLACE: 'naver',
 } as const;
 
 /**

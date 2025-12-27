@@ -36,3 +36,10 @@ export {
   CACHE_PREFIX,
   type CacheService,
 } from './cache.service.js';
+
+export {
+  NaverPlaceApiClient,
+  NaverApiError,
+  createNaverPlaceService,
+  type NaverPlaceService,
+} from './naver-place.service.js';
