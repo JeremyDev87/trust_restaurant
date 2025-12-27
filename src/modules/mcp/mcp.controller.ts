@@ -5,128 +5,20 @@
  * Vercel 서버리스 환경에서 세션 없이 동작
  */
 
-import { Controller, Post, Get, Delete, Req, Res } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Req, Res, Inject } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { ToolRegistry, ToolNotFoundError, type ToolContext } from '../../tools/index.js';
 import {
-  createKakaoMapService,
-  createHygieneGradeService,
-  createViolationService,
-  createBulkHygieneService,
-  createCacheService,
-  createNaverPlaceService,
-  createRestaurantIntelligenceService,
-  createCompareRestaurantsService,
-  createRecommendRestaurantsService,
-  createEnhancedAreaSearchService,
-} from '../../services/index.js';
-import { createApiClient } from '../../utils/api-client.js';
-import {
-  ToolRegistry,
-  ToolNotFoundError,
-  createToolContext,
-  // 도구 정의
-  getRestaurantHygieneDef,
-  searchAreaRestaurantsDef,
-  getBulkHygieneInfoDef,
-  compareRestaurantsDef,
-  recommendRestaurantsDef,
-  getRestaurantIntelligenceDef,
-  searchAreaEnhancedDef,
-  // 핸들러
-  handleGetRestaurantHygiene,
-  handleSearchAreaRestaurants,
-  handleGetBulkHygieneInfo,
-  handleCompareRestaurants,
-  handleRecommendRestaurants,
-  handleGetRestaurantIntelligence,
-  handleSearchAreaEnhanced,
-  type ToolHandler,
-} from '../../tools/index.js';
-
-// 서비스 인스턴스 (모듈 레벨에서 재사용, 캐시 포함)
-const cacheService = createCacheService();
-const apiClient = createApiClient();
-const kakaoMapService = createKakaoMapService(undefined, cacheService);
-const hygieneGradeService = createHygieneGradeService(apiClient, cacheService);
-const violationService = createViolationService(apiClient, cacheService);
-const bulkHygieneService = createBulkHygieneService(
-  hygieneGradeService,
-  violationService,
-);
-
-// 추가 서비스 인스턴스 생성
-const naverPlaceService = createNaverPlaceService(
-  undefined,
-  undefined,
-  cacheService,
-);
-const intelligenceService = createRestaurantIntelligenceService(
-  kakaoMapService,
-  hygieneGradeService,
-  violationService,
-  naverPlaceService,
-  cacheService,
-);
-const enhancedAreaSearchService = createEnhancedAreaSearchService(
-  kakaoMapService,
-  intelligenceService,
-);
-const compareService = createCompareRestaurantsService(intelligenceService);
-const recommendService = createRecommendRestaurantsService(
-  enhancedAreaSearchService,
-  intelligenceService,
-);
-
-// 도구 컨텍스트 생성
-const toolContext = createToolContext({
-  cache: cacheService,
-  kakaoMap: kakaoMapService,
-  naverPlace: naverPlaceService,
-  hygieneGrade: hygieneGradeService,
-  violation: violationService,
-  bulkHygiene: bulkHygieneService,
-  intelligence: intelligenceService,
-  compare: compareService,
-  recommend: recommendService,
-});
-
-// 도구 레지스트리 생성 및 등록
-const registry = new ToolRegistry();
-
-// 기존 도구
-registry.register({
-  ...getRestaurantHygieneDef,
-  handler: handleGetRestaurantHygiene as ToolHandler,
-});
-registry.register({
-  ...searchAreaRestaurantsDef,
-  handler: handleSearchAreaRestaurants as ToolHandler,
-});
-registry.register({
-  ...getBulkHygieneInfoDef,
-  handler: handleGetBulkHygieneInfo as ToolHandler,
-});
-
-// 새 도구 (Phase 5)
-registry.register({
-  ...compareRestaurantsDef,
-  handler: handleCompareRestaurants as ToolHandler,
-});
-registry.register({
-  ...recommendRestaurantsDef,
-  handler: handleRecommendRestaurants as ToolHandler,
-});
-registry.register({
-  ...getRestaurantIntelligenceDef,
-  handler: handleGetRestaurantIntelligence as ToolHandler,
-});
-registry.register({
-  ...searchAreaEnhancedDef,
-  handler: handleSearchAreaEnhanced as ToolHandler,
-});
+  TOOL_REGISTRY_TOKEN,
+  TOOL_CONTEXT_TOKEN,
+} from '../../providers/index.js';
 
 @Controller('api/mcp')
 export class McpController {
+  constructor(
+    @Inject(TOOL_REGISTRY_TOKEN) private readonly registry: ToolRegistry,
+    @Inject(TOOL_CONTEXT_TOKEN) private readonly toolContext: ToolContext,
+  ) {}
   /**
    * POST /api/mcp - Stateless MCP JSON-RPC 핸들러
    */
@@ -170,7 +62,7 @@ export class McpController {
           return res.status(204).send();
 
         case 'tools/list':
-          result = { tools: registry.getAllJsonSchemas() };
+          result = { tools: this.registry.getAllJsonSchemas() };
           break;
 
         case 'tools/call': {
@@ -179,8 +71,8 @@ export class McpController {
             (params as { arguments: Record<string, unknown> })?.arguments || {};
 
           try {
-            const tool = registry.get(toolName);
-            result = await tool.handler(toolArgs, toolContext);
+            const tool = this.registry.get(toolName);
+            result = await tool.handler(toolArgs, this.toolContext);
           } catch (error) {
             if (error instanceof ToolNotFoundError) {
               result = {
