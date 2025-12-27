@@ -398,7 +398,8 @@ describe('NaverPlaceApiClient', () => {
       const result = await client.searchPlace('테스트 식당', '강남구');
 
       expect(result).not.toBeNull();
-      expect(result!.id).toMatch(/^naver-\d+$/);
+      // Fallback ID uses coordinates for deterministic caching
+      expect(result!.id).toBe('naver-127000000-37000000');
     });
   });
 

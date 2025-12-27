@@ -8,6 +8,15 @@ export const API_CONFIG = {
 } as const;
 
 /**
+ * 네이버 API 관련 상수
+ */
+export const NAVER_API_CONFIG = {
+  BASE_URL: 'https://openapi.naver.com/v1/search/local.json',
+  TIMEOUT: 5000,
+  MAX_RESULTS: 5,
+} as const;
+
+/**
  * 카카오맵 API 관련 상수
  */
 export const KAKAO_API_CONFIG = {

@@ -17,6 +17,7 @@ import {
   CACHE_TTL,
   CACHE_PREFIX,
 } from './cache.service.js';
+import { NAVER_API_CONFIG } from '../config/constants.js';
 
 /**
  * 네이버 API 에러
@@ -50,15 +51,6 @@ export interface NaverPlaceService {
    */
   isAvailable(): boolean;
 }
-
-/**
- * 네이버 API 설정
- */
-const NAVER_API_CONFIG = {
-  BASE_URL: 'https://openapi.naver.com/v1/search/local.json',
-  TIMEOUT: 5000,
-  MAX_RESULTS: 5,
-} as const;
 
 /**
  * 네이버 플레이스 API 클라이언트
@@ -102,7 +94,7 @@ export class NaverPlaceApiClient implements NaverPlaceService {
     const searchParams = new URLSearchParams();
     searchParams.set('query', query);
     searchParams.set('display', String(NAVER_API_CONFIG.MAX_RESULTS));
-    searchParams.set('sort', 'random'); // 정확도순
+    searchParams.set('sort', 'sim'); // 정확도순
 
     const url = `${this.baseUrl}?${searchParams.toString()}`;
 
@@ -220,16 +212,16 @@ export class NaverPlaceApiClient implements NaverPlaceService {
   /**
    * 네이버 플레이스 ID 추출 (링크에서)
    */
-  private extractPlaceId(link: string): string {
+  private extractPlaceId(item: NaverLocalSearchItem): string {
     // 네이버 플레이스 링크에서 ID 추출
     // 예: https://map.naver.com/v5/search/.../place/123456789
-    const match = link.match(/place\/(\d+)/);
+    const match = item.link.match(/place\/(\d+)/);
     if (match) {
       return match[1];
     }
 
-    // 링크에서 추출 실패 시 좌표 기반 ID 생성
-    return `naver-${Date.now()}`;
+    // 링크에서 추출 실패 시 좌표 기반 ID 생성 (deterministic for caching)
+    return `naver-${item.mapx}-${item.mapy}`;
   }
 
   /**
@@ -296,7 +288,7 @@ export class NaverPlaceApiClient implements NaverPlaceService {
     const name = this.stripHtml(item.title);
 
     return {
-      id: this.extractPlaceId(item.link),
+      id: this.extractPlaceId(item),
       name,
       address: item.roadAddress || item.address,
       category: item.category,
