@@ -56,7 +56,7 @@ export class HaccpService {
 
     return {
       totalCount,
-      items: items.map((item) => this.mapToCertification(item)),
+      items: items.map(item => this.mapToCertification(item)),
     };
   }
 

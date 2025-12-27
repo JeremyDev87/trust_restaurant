@@ -50,19 +50,16 @@ export const searchAreaEnhancedDef = createToolDefinition({
     category: CategoryFilterSchema.optional()
       .default('all')
       .describe('카테고리 (restaurant: 음식점, cafe: 카페, all: 전체)'),
-    minRating: z
-      .number()
-      .min(0)
-      .max(5)
-      .optional()
-      .describe('최소 평점 (0-5)'),
+    minRating: z.number().min(0).max(5).optional().describe('최소 평점 (0-5)'),
     hygieneGrade: z
       .array(HygieneGradeSchema)
       .optional()
       .describe('위생등급 필터 (AAA, AA, A 중 선택)'),
     sortBy: SortBySchema.optional()
       .default('rating')
-      .describe('정렬 기준 (rating: 평점, hygiene: 위생, reviews: 리뷰수, distance: 거리)'),
+      .describe(
+        '정렬 기준 (rating: 평점, hygiene: 위생, reviews: 리뷰수, distance: 거리)',
+      ),
   },
   handler: async () => ({
     content: [{ type: 'text' as const, text: 'Not implemented' }],

@@ -10,7 +10,13 @@ import { createToolDefinition } from '../types.js';
 /**
  * 추천 목적
  */
-const PurposeSchema = z.enum(['회식', '데이트', '가족모임', '혼밥', '비즈니스미팅']);
+const PurposeSchema = z.enum([
+  '회식',
+  '데이트',
+  '가족모임',
+  '혼밥',
+  '비즈니스미팅',
+]);
 
 /**
  * 카테고리
@@ -59,7 +65,13 @@ export const recommendRestaurantsDef = createToolDefinition({
     budget: BudgetSchema.optional()
       .default('any')
       .describe('예산 (low: 저렴, medium: 보통, high: 고급, any: 무관)'),
-    limit: z.number().min(1).max(10).optional().default(5).describe('추천 개수 (1~10, 기본 5)'),
+    limit: z
+      .number()
+      .min(1)
+      .max(10)
+      .optional()
+      .default(5)
+      .describe('추천 개수 (1~10, 기본 5)'),
   },
   handler: async () => ({
     content: [{ type: 'text' as const, text: 'Not implemented' }],

@@ -48,7 +48,8 @@ export async function handleRecommendRestaurants(
       structuredContent: result as unknown as Record<string, unknown>,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : '추천 중 오류가 발생했습니다.';
+    const message =
+      error instanceof Error ? error.message : '추천 중 오류가 발생했습니다.';
     return {
       content: [{ type: 'text' as const, text: message }],
       isError: true,

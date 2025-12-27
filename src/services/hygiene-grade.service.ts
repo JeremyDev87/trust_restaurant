@@ -4,7 +4,10 @@
  * C004 API를 사용하여 식당의 위생등급 정보를 조회합니다.
  */
 
-import type { C004Response, C004Row } from '../types/api/food-safety/c004.types.js';
+import type {
+  C004Response,
+  C004Row,
+} from '../types/api/food-safety/c004.types.js';
 import type { HygieneGrade } from '../types/domain/restaurant.types.js';
 import { FoodSafetyApiClient } from '../utils/api-client.js';
 import { matchName, matchAddress } from '../utils/address-matcher.js';

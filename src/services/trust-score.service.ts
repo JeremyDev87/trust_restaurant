@@ -59,7 +59,9 @@ export interface TrustScoreInput {
 export function calculateTrustScore(input: TrustScoreInput): TrustScoreResult {
   const indicatorScores: TrustIndicatorScores = {
     hygieneGrade: calculateIndicatorScore.hygieneGrade(input.hygieneGrade),
-    violationHistory: calculateIndicatorScore.violationHistory(input.violationCount),
+    violationHistory: calculateIndicatorScore.violationHistory(
+      input.violationCount,
+    ),
     haccp: calculateIndicatorScore.haccp(input.isHaccpCertified),
     franchise: calculateIndicatorScore.franchise(input.isFranchise),
   };

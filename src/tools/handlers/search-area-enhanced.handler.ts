@@ -32,9 +32,15 @@ export async function handleSearchAreaEnhanced(
 ): Promise<ToolResult> {
   try {
     // 카카오맵을 통해 지역 검색
-    const areaResult = await ctx.kakaoMap.searchByArea(args.area, args.category);
+    const areaResult = await ctx.kakaoMap.searchByArea(
+      args.area,
+      args.category,
+    );
 
-    if (areaResult.status === 'not_found' || areaResult.restaurants.length === 0) {
+    if (
+      areaResult.status === 'not_found' ||
+      areaResult.restaurants.length === 0
+    ) {
       return {
         content: [
           {
@@ -61,23 +67,26 @@ export async function handleSearchAreaEnhanced(
     // 각 식당의 종합 정보 조회 (상위 15개만)
     const topResults = areaResult.restaurants.slice(0, 15);
     const enhancedResults: EnhancedRestaurant[] = await Promise.all(
-      topResults.map(async (restaurant: RestaurantInfo): Promise<EnhancedRestaurant> => {
-        try {
-          const intelligence = await ctx.intelligence.getRestaurantIntelligence(
-            restaurant.name,
-            args.area,
-          );
-          return {
-            ...restaurant,
-            intelligence,
-          };
-        } catch {
-          return {
-            ...restaurant,
-            intelligence: null,
-          };
-        }
-      }),
+      topResults.map(
+        async (restaurant: RestaurantInfo): Promise<EnhancedRestaurant> => {
+          try {
+            const intelligence =
+              await ctx.intelligence.getRestaurantIntelligence(
+                restaurant.name,
+                args.area,
+              );
+            return {
+              ...restaurant,
+              intelligence,
+            };
+          } catch {
+            return {
+              ...restaurant,
+              intelligence: null,
+            };
+          }
+        },
+      ),
     );
 
     // 필터링 적용
@@ -87,7 +96,9 @@ export async function handleSearchAreaEnhanced(
     if (args.hygieneGrade && args.hygieneGrade.length > 0) {
       filtered = filtered.filter((r: EnhancedRestaurant) => {
         const grade = r.intelligence?.hygiene.grade;
-        return grade && args.hygieneGrade!.includes(grade as 'AAA' | 'AA' | 'A');
+        return (
+          grade && args.hygieneGrade!.includes(grade as 'AAA' | 'AA' | 'A')
+        );
       });
     }
 
@@ -108,8 +119,10 @@ export async function handleSearchAreaEnhanced(
       });
     } else if (args.sortBy === 'rating') {
       filtered.sort((a: EnhancedRestaurant, b: EnhancedRestaurant) => {
-        const aRating = a.intelligence?.ratings.combined ?? a.rating?.score ?? 0;
-        const bRating = b.intelligence?.ratings.combined ?? b.rating?.score ?? 0;
+        const aRating =
+          a.intelligence?.ratings.combined ?? a.rating?.score ?? 0;
+        const bRating =
+          b.intelligence?.ratings.combined ?? b.rating?.score ?? 0;
         return bRating - aRating;
       });
     } else if (args.sortBy === 'reviews') {
@@ -132,7 +145,10 @@ export async function handleSearchAreaEnhanced(
     for (const restaurant of filtered) {
       const intel = restaurant.intelligence;
       const grade = intel?.hygiene.grade ?? '미등록';
-      const rating = intel?.ratings.combined?.toFixed(1) ?? restaurant.rating?.score?.toFixed(1) ?? '-';
+      const rating =
+        intel?.ratings.combined?.toFixed(1) ??
+        restaurant.rating?.score?.toFixed(1) ??
+        '-';
       const violations = intel?.hygiene.hasViolations ? '⚠️' : '✅';
 
       lines.push(`[${restaurant.name}]`);
@@ -145,10 +161,15 @@ export async function handleSearchAreaEnhanced(
     }
 
     // 요약 통계
-    const withGrade = filtered.filter((r: EnhancedRestaurant) => r.intelligence?.hygiene.grade).length;
+    const withGrade = filtered.filter(
+      (r: EnhancedRestaurant) => r.intelligence?.hygiene.grade,
+    ).length;
     const avgRating =
-      filtered.reduce((sum: number, r: EnhancedRestaurant) => sum + (r.intelligence?.ratings.combined ?? 0), 0) /
-        filtered.length || 0;
+      filtered.reduce(
+        (sum: number, r: EnhancedRestaurant) =>
+          sum + (r.intelligence?.ratings.combined ?? 0),
+        0,
+      ) / filtered.length || 0;
 
     lines.push('---');
     lines.push(
@@ -171,7 +192,8 @@ export async function handleSearchAreaEnhanced(
       },
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : '검색 중 오류가 발생했습니다.';
+    const message =
+      error instanceof Error ? error.message : '검색 중 오류가 발생했습니다.';
     return {
       content: [{ type: 'text' as const, text: message }],
       isError: true,

@@ -78,7 +78,9 @@ export async function handleGetRestaurantIntelligence(
     } else {
       lines.push('  등급: 미등록');
     }
-    lines.push(`  행정처분: ${result.hygiene.hasViolations ? '⚠️ 있음' : '✅ 없음'}`);
+    lines.push(
+      `  행정처분: ${result.hygiene.hasViolations ? '⚠️ 있음' : '✅ 없음'}`,
+    );
     if (result.hygiene.violationCount > 0) {
       lines.push(`  처분 건수: ${result.hygiene.violationCount}건`);
     }
@@ -103,7 +105,9 @@ export async function handleGetRestaurantIntelligence(
 
     // 부가 정보
     lines.push('💰 부가 정보');
-    const priceLabel = result.priceRange ? PRICE_LABELS[result.priceRange] : '정보 없음';
+    const priceLabel = result.priceRange
+      ? PRICE_LABELS[result.priceRange]
+      : '정보 없음';
     lines.push(`  가격대: ${priceLabel}`);
     if (result.businessHours) {
       lines.push(`  영업시간: ${result.businessHours}`);
@@ -121,7 +125,10 @@ export async function handleGetRestaurantIntelligence(
       structuredContent: result as unknown as Record<string, unknown>,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : '정보 조회 중 오류가 발생했습니다.';
+    const message =
+      error instanceof Error
+        ? error.message
+        : '정보 조회 중 오류가 발생했습니다.';
     return {
       content: [{ type: 'text' as const, text: message }],
       isError: true,

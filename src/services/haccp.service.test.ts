@@ -74,8 +74,14 @@ describe('HaccpService', () => {
           totalCount: '2',
           items: {
             item: [
-              { ...mockResponse.body.items!.item as object, company: '업체1' },
-              { ...mockResponse.body.items!.item as object, company: '업체2' },
+              {
+                ...(mockResponse.body.items!.item as object),
+                company: '업체1',
+              },
+              {
+                ...(mockResponse.body.items!.item as object),
+                company: '업체2',
+              },
             ] as HaccpApiResponse['body']['items']['item'],
           },
         },

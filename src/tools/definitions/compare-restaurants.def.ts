@@ -10,7 +10,12 @@ import { createToolDefinition } from '../types.js';
 /**
  * 비교 항목
  */
-const ComparisonCriteriaSchema = z.enum(['hygiene', 'rating', 'price', 'reviews']);
+const ComparisonCriteriaSchema = z.enum([
+  'hygiene',
+  'rating',
+  'price',
+  'reviews',
+]);
 
 /**
  * 비교할 식당 식별자
@@ -49,7 +54,9 @@ export const compareRestaurantsDef = createToolDefinition({
       .max(4)
       .optional()
       .default(['hygiene', 'rating', 'price', 'reviews'])
-      .describe('비교 항목 (hygiene: 위생, rating: 평점, price: 가격, reviews: 리뷰)'),
+      .describe(
+        '비교 항목 (hygiene: 위생, rating: 평점, price: 가격, reviews: 리뷰)',
+      ),
   },
   handler: async () => ({
     content: [{ type: 'text' as const, text: 'Not implemented' }],

@@ -26,10 +26,12 @@ export async function handleCompareRestaurants(
   try {
     // 입력 변환
     const input: CompareRestaurantsInput = {
-      restaurants: args.restaurants.map((r: { name: string; region: string }) => ({
-        name: r.name,
-        region: r.region,
-      })),
+      restaurants: args.restaurants.map(
+        (r: { name: string; region: string }) => ({
+          name: r.name,
+          region: r.region,
+        }),
+      ),
       criteria: args.criteria,
     };
 
@@ -46,7 +48,8 @@ export async function handleCompareRestaurants(
       structuredContent: result as unknown as Record<string, unknown>,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : '비교 중 오류가 발생했습니다.';
+    const message =
+      error instanceof Error ? error.message : '비교 중 오류가 발생했습니다.';
     return {
       content: [{ type: 'text' as const, text: message }],
       isError: true,

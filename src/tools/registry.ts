@@ -152,7 +152,7 @@ export class ToolRegistry {
    * @returns JSON Schema 형식의 도구 목록
    */
   getAllJsonSchemas(): ToolJsonSchema[] {
-    return this.getAll().map((tool) => ({
+    return this.getAll().map(tool => ({
       name: tool.name,
       title: tool.title,
       description: tool.description,

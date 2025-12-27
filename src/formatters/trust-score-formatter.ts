@@ -71,9 +71,7 @@ export function formatScoreBar(score: number): string {
  * @param scores - 지표별 점수
  * @returns 상세 라인 배열
  */
-export function formatIndicatorDetails(
-  scores: TrustIndicatorScores,
-): string[] {
+export function formatIndicatorDetails(scores: TrustIndicatorScores): string[] {
   const lines: string[] = [];
 
   for (const [key, value] of Object.entries(scores)) {
