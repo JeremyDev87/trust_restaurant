@@ -63,3 +63,5 @@ export {
   isNetworkError,
   type QueryErrorCode,
 } from './error-handler.js';
+
+export { isFranchise, FRANCHISE_BRANDS } from './franchise-detector.js';
