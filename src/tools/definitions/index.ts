@@ -7,6 +7,10 @@
 import { getRestaurantHygieneDef } from './get-restaurant-hygiene.def.js';
 import { searchAreaRestaurantsDef } from './search-area-restaurants.def.js';
 import { getBulkHygieneInfoDef } from './get-bulk-hygiene-info.def.js';
+import { compareRestaurantsDef } from './compare-restaurants.def.js';
+import { recommendRestaurantsDef } from './recommend-restaurants.def.js';
+import { getRestaurantIntelligenceDef } from './get-restaurant-intelligence.def.js';
+import { searchAreaEnhancedDef } from './search-area-enhanced.def.js';
 
 // 개별 도구 정의 익스포트
 export {
@@ -25,6 +29,26 @@ export {
   type RestaurantInfo,
 } from './get-bulk-hygiene-info.def.js';
 
+export {
+  compareRestaurantsDef,
+  type CompareRestaurantsToolInput,
+} from './compare-restaurants.def.js';
+
+export {
+  recommendRestaurantsDef,
+  type RecommendRestaurantsToolInput,
+} from './recommend-restaurants.def.js';
+
+export {
+  getRestaurantIntelligenceDef,
+  type GetRestaurantIntelligenceInput,
+} from './get-restaurant-intelligence.def.js';
+
+export {
+  searchAreaEnhancedDef,
+  type SearchAreaEnhancedInput,
+} from './search-area-enhanced.def.js';
+
 /**
  * 모든 도구 정의 배열
  *
@@ -34,4 +58,8 @@ export const allToolDefinitions = [
   getRestaurantHygieneDef,
   searchAreaRestaurantsDef,
   getBulkHygieneInfoDef,
+  compareRestaurantsDef,
+  recommendRestaurantsDef,
+  getRestaurantIntelligenceDef,
+  searchAreaEnhancedDef,
 ] as const;

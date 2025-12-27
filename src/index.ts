@@ -17,15 +17,30 @@ import {
 import { createApiClient } from './utils/api-client.js';
 import {
   createToolContext,
+  // 도구 정의
   getRestaurantHygieneDef,
   searchAreaRestaurantsDef,
   getBulkHygieneInfoDef,
+  compareRestaurantsDef,
+  recommendRestaurantsDef,
+  getRestaurantIntelligenceDef,
+  searchAreaEnhancedDef,
+  // 핸들러
   handleGetRestaurantHygiene,
   handleSearchAreaRestaurants,
   handleGetBulkHygieneInfo,
+  handleCompareRestaurants,
+  handleRecommendRestaurants,
+  handleGetRestaurantIntelligence,
+  handleSearchAreaEnhanced,
+  // 타입
   type GetRestaurantHygieneInput,
   type SearchAreaRestaurantsInput,
   type GetBulkHygieneInfoInput,
+  type CompareRestaurantsToolInput,
+  type RecommendRestaurantsToolInput,
+  type GetRestaurantIntelligenceInput,
+  type SearchAreaEnhancedInput,
 } from './tools/index.js';
 
 // 서비스 인스턴스 생성 (캐시 포함)
@@ -76,7 +91,7 @@ const toolContext = createToolContext({
 });
 
 /**
- * Clean Plate MCP Server
+ * Trust Restaurant MCP Server
  *
  * 식약처 공인 데이터 기반 식당 위생 정보 조회 서비스
  */
@@ -85,11 +100,8 @@ const server = new McpServer({
   version: '1.0.0',
 });
 
-/**
- * get_restaurant_hygiene 도구 등록
- *
- * 식당의 위생등급과 행정처분 이력을 조회합니다.
- */
+// ===== 기존 도구 등록 =====
+
 server.registerTool(
   getRestaurantHygieneDef.name,
   {
@@ -106,11 +118,6 @@ server.registerTool(
   },
 );
 
-/**
- * search_area_restaurants 도구 등록
- *
- * 지역 내 식당/카페를 탐색합니다.
- */
 server.registerTool(
   searchAreaRestaurantsDef.name,
   {
@@ -127,11 +134,6 @@ server.registerTool(
   },
 );
 
-/**
- * get_bulk_hygiene_info 도구 등록
- *
- * 여러 식당의 위생정보를 일괄 조회하고 필터링합니다.
- */
 server.registerTool(
   getBulkHygieneInfoDef.name,
   {
@@ -148,13 +150,79 @@ server.registerTool(
   },
 );
 
+// ===== 새 도구 등록 (Phase 5) =====
+
+server.registerTool(
+  compareRestaurantsDef.name,
+  {
+    title: compareRestaurantsDef.title,
+    description: compareRestaurantsDef.description,
+    inputSchema: compareRestaurantsDef.inputSchema,
+  },
+  async args => {
+    const result = await handleCompareRestaurants(
+      args as CompareRestaurantsToolInput,
+      toolContext,
+    );
+    return { ...result };
+  },
+);
+
+server.registerTool(
+  recommendRestaurantsDef.name,
+  {
+    title: recommendRestaurantsDef.title,
+    description: recommendRestaurantsDef.description,
+    inputSchema: recommendRestaurantsDef.inputSchema,
+  },
+  async args => {
+    const result = await handleRecommendRestaurants(
+      args as RecommendRestaurantsToolInput,
+      toolContext,
+    );
+    return { ...result };
+  },
+);
+
+server.registerTool(
+  getRestaurantIntelligenceDef.name,
+  {
+    title: getRestaurantIntelligenceDef.title,
+    description: getRestaurantIntelligenceDef.description,
+    inputSchema: getRestaurantIntelligenceDef.inputSchema,
+  },
+  async args => {
+    const result = await handleGetRestaurantIntelligence(
+      args as GetRestaurantIntelligenceInput,
+      toolContext,
+    );
+    return { ...result };
+  },
+);
+
+server.registerTool(
+  searchAreaEnhancedDef.name,
+  {
+    title: searchAreaEnhancedDef.title,
+    description: searchAreaEnhancedDef.description,
+    inputSchema: searchAreaEnhancedDef.inputSchema,
+  },
+  async args => {
+    const result = await handleSearchAreaEnhanced(
+      args as SearchAreaEnhancedInput,
+      toolContext,
+    );
+    return { ...result };
+  },
+);
+
 /**
  * 서버 시작
  */
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Clean Plate MCP Server started');
+  console.error('Trust Restaurant MCP Server started');
 }
 
 main().catch(error => {

@@ -24,12 +24,22 @@ import {
   ToolRegistry,
   ToolNotFoundError,
   createToolContext,
+  // 도구 정의
   getRestaurantHygieneDef,
   searchAreaRestaurantsDef,
   getBulkHygieneInfoDef,
+  compareRestaurantsDef,
+  recommendRestaurantsDef,
+  getRestaurantIntelligenceDef,
+  searchAreaEnhancedDef,
+  // 핸들러
   handleGetRestaurantHygiene,
   handleSearchAreaRestaurants,
   handleGetBulkHygieneInfo,
+  handleCompareRestaurants,
+  handleRecommendRestaurants,
+  handleGetRestaurantIntelligence,
+  handleSearchAreaEnhanced,
   type ToolHandler,
 } from '../../tools/index.js';
 
@@ -82,6 +92,8 @@ const toolContext = createToolContext({
 
 // 도구 레지스트리 생성 및 등록
 const registry = new ToolRegistry();
+
+// 기존 도구
 registry.register({
   ...getRestaurantHygieneDef,
   handler: handleGetRestaurantHygiene as ToolHandler,
@@ -93,6 +105,24 @@ registry.register({
 registry.register({
   ...getBulkHygieneInfoDef,
   handler: handleGetBulkHygieneInfo as ToolHandler,
+});
+
+// 새 도구 (Phase 5)
+registry.register({
+  ...compareRestaurantsDef,
+  handler: handleCompareRestaurants as ToolHandler,
+});
+registry.register({
+  ...recommendRestaurantsDef,
+  handler: handleRecommendRestaurants as ToolHandler,
+});
+registry.register({
+  ...getRestaurantIntelligenceDef,
+  handler: handleGetRestaurantIntelligence as ToolHandler,
+});
+registry.register({
+  ...searchAreaEnhancedDef,
+  handler: handleSearchAreaEnhanced as ToolHandler,
 });
 
 @Controller('api/mcp')
