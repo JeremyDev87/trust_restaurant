@@ -16,17 +16,13 @@ describe('trust-score-formatter', () => {
     indicatorScores: {
       hygieneGrade: 80,
       violationHistory: 100,
-      businessDuration: 60,
-      rating: 70,
-      reviewCount: 40,
+      haccp: 100,
       franchise: 50,
     },
     details: {
       hygieneGrade: 'AA',
       violationCount: 0,
-      businessYears: 5,
-      rating: 3.5,
-      reviewCount: 75,
+      isHaccpCertified: true,
       isFranchise: false,
     },
   };
@@ -101,13 +97,11 @@ describe('trust-score-formatter', () => {
     it('should format all indicators', () => {
       const lines = formatIndicatorDetails(mockResult.indicatorScores);
 
-      expect(lines).toHaveLength(6);
+      expect(lines).toHaveLength(4);
       expect(lines[0]).toBe('   위생등급: ████░ 80점');
       expect(lines[1]).toBe('   행정처분: █████ 100점');
-      expect(lines[2]).toBe('   영업기간: ███░░ 60점');
-      expect(lines[3]).toBe('   평점: ████░ 70점');
-      expect(lines[4]).toBe('   리뷰수: ██░░░ 40점');
-      expect(lines[5]).toBe('   프랜차이즈: ███░░ 50점');
+      expect(lines[2]).toBe('   HACCP인증: █████ 100점');
+      expect(lines[3]).toBe('   프랜차이즈: ███░░ 50점');
     });
   });
 
@@ -118,9 +112,10 @@ describe('trust-score-formatter', () => {
       expect(formatted.headerLine).toBe(
         '🟡 신뢰도: B등급 (75점) - 가도 됩니다',
       );
-      expect(formatted.detailLines).toHaveLength(6);
+      expect(formatted.detailLines).toHaveLength(4);
       expect(formatted.text).toContain('신뢰도: B등급');
       expect(formatted.text).toContain('위생등급:');
+      expect(formatted.text).toContain('HACCP인증:');
     });
 
     it('should exclude details when requested', () => {

@@ -26,9 +26,7 @@ const GRADE_ICONS: Record<TrustGrade, string> = {
 const INDICATOR_NAMES = {
   hygieneGrade: '위생등급',
   violationHistory: '행정처분',
-  businessDuration: '영업기간',
-  rating: '평점',
-  reviewCount: '리뷰수',
+  haccp: 'HACCP인증',
   franchise: '프랜차이즈',
 } as const;
 
