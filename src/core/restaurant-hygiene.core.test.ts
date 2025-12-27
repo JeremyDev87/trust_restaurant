@@ -8,7 +8,7 @@ import {
   type HygieneQueryParams,
   type HygieneSuccessResult,
   type HygieneErrorResult,
-} from './restaurant-hygiene.core.js';
+} from '../application/restaurant-hygiene.usecase.js';
 import * as kakaoMapServiceModule from '../services/kakao-map.service.js';
 import * as hygieneGradeServiceModule from '../services/hygiene-grade.service.js';
 import * as violationServiceModule from '../services/violation.service.js';

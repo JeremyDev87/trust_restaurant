@@ -1,5 +1,5 @@
 /**
- * Enhanced Area Search Service
+ * Enhanced Area Search Use Case
  *
  * 지역 기반 검색을 확장하여 평점, 위생등급 정보와 필터/정렬 기능을 제공합니다.
  */
@@ -12,8 +12,8 @@ import type {
 } from '../types/area-search.types.js';
 import type { RestaurantInfo } from '../types/kakao-map.types.js';
 import type { RestaurantIntelligence } from '../types/restaurant-intelligence.types.js';
-import type { KakaoMapService } from './kakao-map.service.js';
-import type { RestaurantIntelligenceService } from './restaurant-intelligence.service.js';
+import type { KakaoMapService } from '../services/kakao-map.service.js';
+import type { RestaurantIntelligenceService } from '../services/restaurant-intelligence.service.js';
 
 /**
  * Enhanced Area Search Service 인터페이스

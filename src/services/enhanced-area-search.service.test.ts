@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   EnhancedAreaSearchServiceImpl,
   createEnhancedAreaSearchService,
-} from './enhanced-area-search.service.js';
+} from '../application/enhanced-area-search.usecase.js';
 import type { KakaoMapService } from './kakao-map.service.js';
 import type { RestaurantIntelligenceService } from './restaurant-intelligence.service.js';
 import type { RestaurantInfo } from '../types/kakao-map.types.js';

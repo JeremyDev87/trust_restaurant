@@ -3,7 +3,7 @@ import {
   CompareRestaurantsServiceImpl,
   createCompareRestaurantsService,
   CompareValidationError,
-} from './compare-restaurants.service.js';
+} from '../application/compare-restaurants.usecase.js';
 import type { RestaurantIntelligenceService } from './restaurant-intelligence.service.js';
 import type { RestaurantIntelligence } from '../types/restaurant-intelligence.types.js';
 

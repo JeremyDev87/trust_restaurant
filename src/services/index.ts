@@ -50,22 +50,23 @@ export {
   type RestaurantIntelligenceService,
 } from './restaurant-intelligence.service.js';
 
+// 유스케이스는 application/ 계층에서 re-export
 export {
   EnhancedAreaSearchServiceImpl,
   createEnhancedAreaSearchService,
   type EnhancedAreaSearchService,
-} from './enhanced-area-search.service.js';
+} from '../application/enhanced-area-search.usecase.js';
 
 export {
   CompareRestaurantsServiceImpl,
   createCompareRestaurantsService,
   CompareValidationError,
   type CompareRestaurantsService,
-} from './compare-restaurants.service.js';
+} from '../application/compare-restaurants.usecase.js';
 
 export {
   RecommendRestaurantsServiceImpl,
   createRecommendRestaurantsService,
   RecommendValidationError,
   type RecommendRestaurantsService,
-} from './recommend-restaurants.service.js';
+} from '../application/recommend-restaurants.usecase.js';

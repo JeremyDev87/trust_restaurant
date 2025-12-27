@@ -6,15 +6,17 @@
  */
 
 import type { ToolDefinition, ToolContext, JsonSchemaOutput } from './types.js';
-import type { CacheService } from '../services/cache.service.js';
-import type { KakaoMapService } from '../services/kakao-map.service.js';
-import type { NaverPlaceService } from '../services/naver-place.service.js';
-import type { HygieneGradeService } from '../services/hygiene-grade.service.js';
-import type { ViolationService } from '../services/violation.service.js';
-import type { BulkHygieneService } from '../services/bulk-hygiene.service.js';
-import type { RestaurantIntelligenceService } from '../services/restaurant-intelligence.service.js';
-import type { CompareRestaurantsService } from '../services/compare-restaurants.service.js';
-import type { RecommendRestaurantsService } from '../services/recommend-restaurants.service.js';
+import type {
+  CacheService,
+  KakaoMapService,
+  NaverPlaceService,
+  HygieneGradeService,
+  ViolationService,
+  BulkHygieneService,
+  RestaurantIntelligenceService,
+  CompareRestaurantsService,
+  RecommendRestaurantsService,
+} from '../services/index.js';
 
 /**
  * JSON Schema 형식의 도구 정의

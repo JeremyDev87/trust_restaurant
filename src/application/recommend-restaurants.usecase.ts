@@ -1,5 +1,5 @@
 /**
- * 식당 추천 서비스
+ * 식당 추천 유스케이스
  *
  * 조건 기반 스마트 추천 알고리즘을 제공합니다.
  */
@@ -22,8 +22,8 @@ import {
   PRIORITY_WEIGHTS,
   PURPOSE_PREFERENCES,
 } from '../types/recommend.types.js';
-import type { EnhancedAreaSearchService } from './enhanced-area-search.service.js';
-import type { RestaurantIntelligenceService } from './restaurant-intelligence.service.js';
+import type { EnhancedAreaSearchService } from './enhanced-area-search.usecase.js';
+import type { RestaurantIntelligenceService } from '../services/restaurant-intelligence.service.js';
 import type {
   EnhancedRestaurantInfo,
   EnhancedAreaSearchResult,

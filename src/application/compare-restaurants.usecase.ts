@@ -1,5 +1,5 @@
 /**
- * 식당 비교 분석 서비스
+ * 식당 비교 분석 유스케이스
  *
  * 여러 식당의 위생, 평점, 가격 등을 비교 분석합니다.
  */
@@ -16,7 +16,7 @@ import {
   COMPARE_CONSTRAINTS,
   DEFAULT_CRITERIA,
 } from '../types/compare.types.js';
-import type { RestaurantIntelligenceService } from './restaurant-intelligence.service.js';
+import type { RestaurantIntelligenceService } from '../services/restaurant-intelligence.service.js';
 import type { RestaurantIntelligence } from '../types/restaurant-intelligence.types.js';
 
 /**

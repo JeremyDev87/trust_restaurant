@@ -3,8 +3,8 @@ import {
   RecommendRestaurantsServiceImpl,
   createRecommendRestaurantsService,
   RecommendValidationError,
-} from './recommend-restaurants.service.js';
-import type { EnhancedAreaSearchService } from './enhanced-area-search.service.js';
+} from '../application/recommend-restaurants.usecase.js';
+import type { EnhancedAreaSearchService } from '../application/enhanced-area-search.usecase.js';
 import type { RestaurantIntelligenceService } from './restaurant-intelligence.service.js';
 import type {
   EnhancedAreaSearchResult,
