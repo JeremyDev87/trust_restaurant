@@ -21,12 +21,12 @@ import {
  * - 결과를 MCP 프로토콜 형식으로 포맷팅하여 반환
  *
  * @param args - 도구 입력 (restaurant_name, region, include_history)
- * @param _ctx - 도구 컨텍스트 (현재 사용되지 않음)
+ * @param ctx - 도구 컨텍스트 (DI 서비스 주입)
  * @returns 도구 실행 결과
  */
 export async function handleGetRestaurantHygiene(
   args: GetRestaurantHygieneInput,
-  _ctx: ToolContext,
+  ctx: ToolContext,
 ): Promise<ToolResult> {
   // 입력 검증 (정규화 + 보안 검사)
   const validation = validateRequest(HygieneRequestSchema, {
@@ -42,7 +42,13 @@ export async function handleGetRestaurantHygiene(
     };
   }
 
-  const result = await queryRestaurantHygiene(validation.data);
+  // DI 컨텍스트에서 서비스 주입
+  const result = await queryRestaurantHygiene(validation.data, {
+    kakaoMapService: ctx.kakaoMap,
+    hygieneGradeService: ctx.hygieneGrade,
+    violationService: ctx.violation,
+    cacheService: ctx.cache,
+  });
 
   if (!result.success) {
     // 에러 응답
