@@ -33,6 +33,9 @@ describe('KakaoMapApiClient', () => {
         category_name: '음식점 > 카페 > 커피전문점',
         x: '127.028046',
         y: '37.498095',
+        category_group_code: 'CE7',
+        category_group_name: '카페',
+        place_url: 'https://place.map.kakao.com/12345',
       },
     ],
     meta: {
@@ -53,6 +56,9 @@ describe('KakaoMapApiClient', () => {
         category_name: '음식점 > 카페',
         x: '127.028046',
         y: '37.498095',
+        category_group_code: 'CE7',
+        category_group_name: '카페',
+        place_url: 'https://place.map.kakao.com/12345',
       },
       {
         id: '12346',
@@ -63,6 +69,9 @@ describe('KakaoMapApiClient', () => {
         category_name: '음식점 > 카페',
         x: '127.027000',
         y: '37.497000',
+        category_group_code: 'CE7',
+        category_group_name: '카페',
+        place_url: 'https://place.map.kakao.com/12346',
       },
     ],
     meta: {
@@ -110,6 +119,9 @@ describe('KakaoMapApiClient', () => {
         category: '음식점 > 카페 > 커피전문점',
         longitude: '127.028046',
         latitude: '37.498095',
+        placeUrl: 'https://place.map.kakao.com/12345',
+        rating: undefined,
+        businessHours: undefined,
       });
     });
 
@@ -185,8 +197,11 @@ describe('KakaoMapApiClient', () => {
             road_address_name: '서울 강남구',
             phone: '02-0000-0000',
             category_name: '음식점',
+            category_group_code: 'FD6',
+            category_group_name: '음식점',
             x: '127.0',
             y: '37.5',
+            place_url: `https://place.map.kakao.com/${i}`,
           })),
         meta: { total_count: 10, pageable_count: 10, is_end: true },
       };
@@ -312,8 +327,11 @@ describe('KakaoMapApiClient', () => {
           road_address_name: '서울 강남구 테헤란로',
           phone: '02-0000-0000',
           category_name: '음식점',
+          category_group_code: 'FD6',
+          category_group_name: '음식점',
           x: '127.0',
           y: '37.5',
+          place_url: `https://place.map.kakao.com/${i}`,
         })),
       meta: {
         total_count: count,
@@ -367,6 +385,10 @@ describe('KakaoMapApiClient', () => {
         expect(result.restaurants[0]).toHaveProperty('category');
         expect(result.restaurants[0]).toHaveProperty('longitude');
         expect(result.restaurants[0]).toHaveProperty('latitude');
+        // 새로 추가된 필드들
+        expect(result.restaurants[0]).toHaveProperty('placeUrl');
+        expect(result.restaurants[0]).toHaveProperty('rating');
+        expect(result.restaurants[0]).toHaveProperty('businessHours');
       });
     });
 
@@ -507,8 +529,11 @@ describe('KakaoMapApiClient', () => {
                     road_address_name: '서울 강남구',
                     phone: '02-0000-0000',
                     category_name: '음식점',
+                    category_group_code: 'FD6',
+                    category_group_name: '음식점',
                     x: '127.0',
                     y: '37.5',
+                    place_url: `https://place.map.kakao.com/fd6-${i}`,
                   })),
                 meta: { total_count: 30, pageable_count: 30, is_end: false },
               }),
@@ -526,8 +551,11 @@ describe('KakaoMapApiClient', () => {
                     road_address_name: '서울 강남구',
                     phone: '02-0000-0000',
                     category_name: '음식점',
+                    category_group_code: 'FD6',
+                    category_group_name: '음식점',
                     x: '127.0',
                     y: '37.5',
+                    place_url: `https://place.map.kakao.com/fd6-page2-${i}`,
                   })),
                 meta: { total_count: 30, pageable_count: 30, is_end: true },
               }),
@@ -572,8 +600,11 @@ describe('KakaoMapApiClient', () => {
                   road_address_name: '서울 강남구',
                   phone: '02-0000-0000',
                   category_name: '음식점',
+                  category_group_code: 'FD6',
+                  category_group_name: '음식점',
                   x: '127.0',
                   y: '37.5',
+                  place_url: `https://place.map.kakao.com/${i}`,
                 })),
               meta: { total_count: 10, pageable_count: 10, is_end: true },
             }),
@@ -709,8 +740,11 @@ describe('KakaoMapApiClient', () => {
           road_address_name: '서울 강남구',
           phone: '02-0000-0000',
           category_name: '음식점',
+          category_group_code: 'FD6',
+          category_group_name: '음식점',
           x: '127.0',
           y: '37.5',
+          place_url: `https://place.map.kakao.com/${i}`,
         })),
       meta: { total_count: 100, pageable_count: 45, is_end: false },
     });
@@ -794,8 +828,11 @@ describe('KakaoMapApiClient', () => {
             road_address_name: '서울 강남구',
             phone: '02-0000-0000',
             category_name: '카페',
+            category_group_code: 'CE7',
+            category_group_name: '카페',
             x: '127.0',
             y: '37.5',
+            place_url: 'https://place.map.kakao.com/same-id-1',
           },
         ],
         meta: { total_count: 1, pageable_count: 1, is_end: true },

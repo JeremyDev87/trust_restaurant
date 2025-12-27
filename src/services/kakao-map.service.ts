@@ -163,6 +163,9 @@ export class KakaoMapApiClient implements KakaoMapService {
 
   /**
    * KakaoPlace를 RestaurantInfo로 변환
+   *
+   * 참고: rating, businessHours는 카카오 API에서 제공되지 않음
+   * 이 필드들은 나중에 네이버 API나 스크래핑 등 다른 소스에서 채워질 예정
    */
   private toRestaurantInfo(place: KakaoPlace): RestaurantInfo {
     return {
@@ -174,6 +177,11 @@ export class KakaoMapApiClient implements KakaoMapService {
       category: place.category_name,
       longitude: place.x,
       latitude: place.y,
+      // 카카오 API에서 제공하는 필드
+      placeUrl: place.place_url || undefined,
+      // 카카오 API에서 제공하지 않는 필드 (나중에 다른 소스에서 채움)
+      rating: undefined,
+      businessHours: undefined,
     };
   }
 

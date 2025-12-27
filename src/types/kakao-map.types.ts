@@ -84,6 +84,16 @@ export interface KakaoSearchParams {
 }
 
 /**
+ * 평점 정보
+ */
+export interface RatingInfo {
+  /** 평점 (0-5), 데이터가 없으면 null */
+  score: number | null;
+  /** 리뷰 수 */
+  reviewCount: number;
+}
+
+/**
  * 간소화된 식당 정보 (내부 사용)
  */
 export interface RestaurantInfo {
@@ -103,4 +113,10 @@ export interface RestaurantInfo {
   longitude: string;
   /** 위도 */
   latitude: string;
+  /** 평점 정보 (카카오 API는 제공하지 않음, 다른 소스에서 채움) */
+  rating?: RatingInfo;
+  /** 영업시간 (카카오 API는 제공하지 않음, 다른 소스에서 채움) */
+  businessHours?: string | null;
+  /** 장소 상세 페이지 URL */
+  placeUrl?: string;
 }
