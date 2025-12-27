@@ -14,7 +14,10 @@ import type {
 } from '../types/restaurant-intelligence.types.js';
 import type { KakaoMapService } from './kakao-map.service.js';
 import type { NaverPlaceService } from './naver-place.service.js';
-import type { HygieneGradeService, HygieneGradeItem } from './hygiene-grade.service.js';
+import type {
+  HygieneGradeService,
+  HygieneGradeItem,
+} from './hygiene-grade.service.js';
 import type { ViolationService } from './violation.service.js';
 import {
   type CacheService,
@@ -66,9 +69,7 @@ export interface RestaurantIntelligenceService {
 /**
  * 식당 종합 정보 서비스 구현
  */
-export class RestaurantIntelligenceServiceImpl
-  implements RestaurantIntelligenceService
-{
+export class RestaurantIntelligenceServiceImpl implements RestaurantIntelligenceService {
   constructor(
     private readonly kakaoMapService: KakaoMapService,
     private readonly hygieneGradeService: HygieneGradeService,
@@ -137,7 +138,10 @@ export class RestaurantIntelligenceServiceImpl
     ]);
 
     // 위생 정보 구성
-    const hygiene = this.buildHygieneInfo(hygieneResult, violationResult.total_count);
+    const hygiene = this.buildHygieneInfo(
+      hygieneResult,
+      violationResult.total_count,
+    );
 
     // 평점 정보 구성
     const ratings = this.buildRatingsInfo(naverResult);
@@ -259,7 +263,10 @@ export class RestaurantIntelligenceServiceImpl
   ): ScoresInfo {
     const hygieneScore = this.calculateHygieneScore(hygiene);
     const popularityScore = this.calculatePopularityScore(ratings);
-    const overallScore = this.calculateOverallScore(hygieneScore, popularityScore);
+    const overallScore = this.calculateOverallScore(
+      hygieneScore,
+      popularityScore,
+    );
 
     return {
       hygiene: hygieneScore,

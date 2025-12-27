@@ -54,7 +54,13 @@ describe('RecommendFormatter', () => {
       createMockRecommendedRestaurant(1, '본죽&비빔밥', {
         hygiene: { grade: 'AAA', stars: 3, hasViolations: false },
         priceRange: 'low',
-        highlights: ['AAA 등급', '평점 4.5', '행정처분 없음', '리뷰 328개', '가성비 좋음'],
+        highlights: [
+          'AAA 등급',
+          '평점 4.5',
+          '행정처분 없음',
+          '리뷰 328개',
+          '가성비 좋음',
+        ],
       }),
       createMockRecommendedRestaurant(2, '계절밥상', {
         hygiene: { grade: 'AA', stars: 2, hasViolations: false },

@@ -35,7 +35,6 @@ export interface AreaSearchResult {
   message: string;
 }
 
-
 /**
  * 지역 요약 통계
  */

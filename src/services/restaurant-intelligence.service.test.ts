@@ -86,7 +86,9 @@ describe('RestaurantIntelligenceService', () => {
 
     violationService = {
       searchByName: vi.fn(),
-      getViolationsForRestaurant: vi.fn().mockResolvedValue(mockViolationResult),
+      getViolationsForRestaurant: vi
+        .fn()
+        .mockResolvedValue(mockViolationResult),
       getByLicenseNo: vi.fn(),
     } as unknown as ViolationService;
 
@@ -181,7 +183,10 @@ describe('RestaurantIntelligenceService', () => {
         cacheService,
       );
 
-      const result = await service.getRestaurantIntelligence('맛있는 식당', '   ');
+      const result = await service.getRestaurantIntelligence(
+        '맛있는 식당',
+        '   ',
+      );
 
       expect(result).toBeNull();
       expect(kakaoMapService.searchRestaurant).not.toHaveBeenCalled();
@@ -374,7 +379,9 @@ describe('RestaurantIntelligenceService', () => {
         vi.mocked(hygieneGradeService.findExactMatch).mockResolvedValue(
           aaaHygieneResult,
         );
-        vi.mocked(violationService.getViolationsForRestaurant).mockResolvedValue({
+        vi.mocked(
+          violationService.getViolationsForRestaurant,
+        ).mockResolvedValue({
           total_count: 0,
           recent_items: [],
           has_more: false,
@@ -397,7 +404,9 @@ describe('RestaurantIntelligenceService', () => {
       });
 
       it('should calculate 80 for AA grade without violations', async () => {
-        vi.mocked(violationService.getViolationsForRestaurant).mockResolvedValue({
+        vi.mocked(
+          violationService.getViolationsForRestaurant,
+        ).mockResolvedValue({
           total_count: 0,
           recent_items: [],
           has_more: false,
@@ -434,7 +443,9 @@ describe('RestaurantIntelligenceService', () => {
         vi.mocked(hygieneGradeService.findExactMatch).mockResolvedValue(
           aHygieneResult,
         );
-        vi.mocked(violationService.getViolationsForRestaurant).mockResolvedValue({
+        vi.mocked(
+          violationService.getViolationsForRestaurant,
+        ).mockResolvedValue({
           total_count: 0,
           recent_items: [],
           has_more: false,
@@ -458,7 +469,9 @@ describe('RestaurantIntelligenceService', () => {
 
       it('should calculate 40 for no grade without violations', async () => {
         vi.mocked(hygieneGradeService.findExactMatch).mockResolvedValue(null);
-        vi.mocked(violationService.getViolationsForRestaurant).mockResolvedValue({
+        vi.mocked(
+          violationService.getViolationsForRestaurant,
+        ).mockResolvedValue({
           total_count: 0,
           recent_items: [],
           has_more: false,
@@ -481,9 +494,13 @@ describe('RestaurantIntelligenceService', () => {
       });
 
       it('should apply -20 penalty per violation', async () => {
-        vi.mocked(violationService.getViolationsForRestaurant).mockResolvedValue({
+        vi.mocked(
+          violationService.getViolationsForRestaurant,
+        ).mockResolvedValue({
           total_count: 1,
-          recent_items: [{ date: '2023-01-01', type: '경고', content: '', reason: '' }],
+          recent_items: [
+            { date: '2023-01-01', type: '경고', content: '', reason: '' },
+          ],
           has_more: false,
         });
 
@@ -505,7 +522,9 @@ describe('RestaurantIntelligenceService', () => {
       });
 
       it('should cap violation penalty at -40', async () => {
-        vi.mocked(violationService.getViolationsForRestaurant).mockResolvedValue({
+        vi.mocked(
+          violationService.getViolationsForRestaurant,
+        ).mockResolvedValue({
           total_count: 5,
           recent_items: [],
           has_more: true,
@@ -530,7 +549,9 @@ describe('RestaurantIntelligenceService', () => {
 
       it('should not go below 0', async () => {
         vi.mocked(hygieneGradeService.findExactMatch).mockResolvedValue(null);
-        vi.mocked(violationService.getViolationsForRestaurant).mockResolvedValue({
+        vi.mocked(
+          violationService.getViolationsForRestaurant,
+        ).mockResolvedValue({
           total_count: 5,
           recent_items: [],
           has_more: true,
@@ -617,7 +638,9 @@ describe('RestaurantIntelligenceService', () => {
 
     describe('Overall Score', () => {
       it('should calculate weighted average (60% hygiene, 40% popularity)', async () => {
-        vi.mocked(violationService.getViolationsForRestaurant).mockResolvedValue({
+        vi.mocked(
+          violationService.getViolationsForRestaurant,
+        ).mockResolvedValue({
           total_count: 0,
           recent_items: [],
           has_more: false,
@@ -646,7 +669,9 @@ describe('RestaurantIntelligenceService', () => {
           ...mockNaverResult,
           score: 4.3,
         });
-        vi.mocked(violationService.getViolationsForRestaurant).mockResolvedValue({
+        vi.mocked(
+          violationService.getViolationsForRestaurant,
+        ).mockResolvedValue({
           total_count: 0,
           recent_items: [],
           has_more: false,
@@ -853,7 +878,9 @@ describe('RestaurantIntelligenceService', () => {
           stars: 0,
         },
       };
-      vi.mocked(hygieneGradeService.findExactMatch).mockResolvedValue(noGradeResult);
+      vi.mocked(hygieneGradeService.findExactMatch).mockResolvedValue(
+        noGradeResult,
+      );
 
       const service = new RestaurantIntelligenceServiceImpl(
         kakaoMapService,

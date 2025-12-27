@@ -24,7 +24,9 @@ export interface EnhancedAreaSearchService {
    * @param input - 검색 입력 (지역명, 필터, 정렬 옵션)
    * @returns 확장된 지역 검색 결과
    */
-  searchArea(input: SearchAreaRestaurantsInput): Promise<EnhancedAreaSearchResult>;
+  searchArea(
+    input: SearchAreaRestaurantsInput,
+  ): Promise<EnhancedAreaSearchResult>;
 }
 
 /**
@@ -104,7 +106,7 @@ export class EnhancedAreaSearchServiceImpl implements EnhancedAreaSearchService 
     area: string,
   ): Promise<EnhancedRestaurantInfo[]> {
     // 병렬로 intelligence 조회
-    const enrichPromises = restaurants.map(async (restaurant) => {
+    const enrichPromises = restaurants.map(async restaurant => {
       const intelligence = await this.intelligenceService
         .getRestaurantIntelligence(restaurant.name, area)
         .catch(() => null);
@@ -155,7 +157,7 @@ export class EnhancedAreaSearchServiceImpl implements EnhancedAreaSearchService 
 
     // 최소 평점 필터
     if (minRating !== undefined && minRating > 0) {
-      filtered = filtered.filter((r) => {
+      filtered = filtered.filter(r => {
         const rating = r.ratings?.combined;
         return rating !== null && rating !== undefined && rating >= minRating;
       });
@@ -163,9 +165,11 @@ export class EnhancedAreaSearchServiceImpl implements EnhancedAreaSearchService 
 
     // 위생등급 필터
     if (hygieneGrades && hygieneGrades.length > 0) {
-      filtered = filtered.filter((r) => {
+      filtered = filtered.filter(r => {
         const grade = r.hygiene?.grade;
-        return grade !== null && grade !== undefined && hygieneGrades.includes(grade);
+        return (
+          grade !== null && grade !== undefined && hygieneGrades.includes(grade)
+        );
       });
     }
 
@@ -226,20 +230,21 @@ export class EnhancedAreaSearchServiceImpl implements EnhancedAreaSearchService 
   private calculateSummary(restaurants: EnhancedRestaurantInfo[]): AreaSummary {
     // 평균 평점 계산
     const ratingsWithValue = restaurants
-      .map((r) => r.ratings?.combined)
+      .map(r => r.ratings?.combined)
       .filter((r): r is number => r !== null && r !== undefined);
 
     const avgRating =
       ratingsWithValue.length > 0
         ? Math.round(
-            (ratingsWithValue.reduce((sum, r) => sum + r, 0) / ratingsWithValue.length) *
+            (ratingsWithValue.reduce((sum, r) => sum + r, 0) /
+              ratingsWithValue.length) *
               10,
           ) / 10
         : null;
 
     // 등급별 분포
     const gradeDistribution = { AAA: 0, AA: 0, A: 0 };
-    restaurants.forEach((r) => {
+    restaurants.forEach(r => {
       const grade = r.hygiene?.grade;
       if (grade && grade in gradeDistribution) {
         gradeDistribution[grade]++;
@@ -251,7 +256,7 @@ export class EnhancedAreaSearchServiceImpl implements EnhancedAreaSearchService 
 
     // 깨끗한 식당 비율 (위생등급 있고 행정처분 없는 식당)
     const cleanCount = restaurants.filter(
-      (r) => r.hygiene?.grade && !r.hygiene.hasViolations,
+      r => r.hygiene?.grade && !r.hygiene.hasViolations,
     ).length;
     const cleanRatio =
       restaurants.length > 0
@@ -274,5 +279,8 @@ export function createEnhancedAreaSearchService(
   kakaoMapService: KakaoMapService,
   intelligenceService: RestaurantIntelligenceService,
 ): EnhancedAreaSearchService {
-  return new EnhancedAreaSearchServiceImpl(kakaoMapService, intelligenceService);
+  return new EnhancedAreaSearchServiceImpl(
+    kakaoMapService,
+    intelligenceService,
+  );
 }

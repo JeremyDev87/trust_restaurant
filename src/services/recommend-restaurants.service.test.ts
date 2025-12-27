@@ -169,12 +169,12 @@ describe('RecommendRestaurantsService', () => {
         intelligenceService,
       );
 
-      await expect(
-        service.recommendRestaurants({ area: '' }),
-      ).rejects.toThrow(RecommendValidationError);
-      await expect(
-        service.recommendRestaurants({ area: '' }),
-      ).rejects.toThrow('지역명은 필수입니다.');
+      await expect(service.recommendRestaurants({ area: '' })).rejects.toThrow(
+        RecommendValidationError,
+      );
+      await expect(service.recommendRestaurants({ area: '' })).rejects.toThrow(
+        '지역명은 필수입니다.',
+      );
     });
 
     it('should throw error when limit is less than 1', async () => {
@@ -270,7 +270,9 @@ describe('RecommendRestaurantsService', () => {
         intelligenceService,
       );
 
-      const result = await service.recommendRestaurants({ area: '존재하지않는지역' });
+      const result = await service.recommendRestaurants({
+        area: '존재하지않는지역',
+      });
 
       expect(result.status).toBe('no_results');
       expect(result.recommendations).toHaveLength(0);
@@ -431,8 +433,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(null);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(null);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -458,8 +461,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(null);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(null);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -485,8 +489,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(null);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(null);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -500,7 +505,9 @@ describe('RecommendRestaurantsService', () => {
 
       expect(result.status).toBe('success');
       // mockRestaurant1이 low 가격대
-      expect(result.recommendations.some(r => r.name === '본죽&비빔밥')).toBe(true);
+      expect(result.recommendations.some(r => r.name === '본죽&비빔밥')).toBe(
+        true,
+      );
     });
 
     it('should return all when budget is any', async () => {
@@ -512,8 +519,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(null);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(null);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -548,8 +556,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(null);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(null);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -587,8 +596,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(null);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(null);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -616,8 +626,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(null);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(null);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -642,8 +653,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(mockIntelligence1);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(mockIntelligence1);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -671,8 +683,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(mockIntelligence1);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(mockIntelligence1);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -699,8 +712,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockResolvedValue(null);
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockResolvedValue(null);
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,
@@ -738,8 +752,9 @@ describe('RecommendRestaurantsService', () => {
       };
 
       vi.mocked(areaSearchService.searchArea).mockResolvedValue(searchResult);
-      vi.mocked(intelligenceService.getRestaurantIntelligence)
-        .mockRejectedValue(new Error('API Error'));
+      vi.mocked(
+        intelligenceService.getRestaurantIntelligence,
+      ).mockRejectedValue(new Error('API Error'));
 
       const service = new RecommendRestaurantsServiceImpl(
         areaSearchService,

@@ -111,7 +111,10 @@ describe('Full Workflow Integration', () => {
       } as Response);
 
       // 1. 지역 내 식당 위생등급 검색
-      const searchResult = await hygieneService.searchByName('맛있는 한식당', '강남구');
+      const searchResult = await hygieneService.searchByName(
+        '맛있는 한식당',
+        '강남구',
+      );
 
       expect(searchResult.totalCount).toBe(3);
       expect(searchResult.items.length).toBe(3);
@@ -158,12 +161,21 @@ describe('Full Workflow Integration', () => {
         json: async () => mockC004Response,
       } as Response);
 
-      const searchResult = await hygieneService.searchByName('맛있는 한식당', '강남구');
+      const searchResult = await hygieneService.searchByName(
+        '맛있는 한식당',
+        '강남구',
+      );
 
       // 등급별 분류
-      const gradeAAA = searchResult.items.filter((r) => r.hygieneGrade.grade === 'AAA');
-      const gradeAA = searchResult.items.filter((r) => r.hygieneGrade.grade === 'AA');
-      const gradeA = searchResult.items.filter((r) => r.hygieneGrade.grade === 'A');
+      const gradeAAA = searchResult.items.filter(
+        r => r.hygieneGrade.grade === 'AAA',
+      );
+      const gradeAA = searchResult.items.filter(
+        r => r.hygieneGrade.grade === 'AA',
+      );
+      const gradeA = searchResult.items.filter(
+        r => r.hygieneGrade.grade === 'A',
+      );
 
       expect(gradeAAA.length).toBe(1);
       expect(gradeAA.length).toBe(1);
@@ -221,8 +233,12 @@ describe('Full Workflow Integration', () => {
       const searchResult = await hygieneService.searchByName('식당', '역삼동');
 
       // 등급이 있는 식당 필터링
-      const withGrade = searchResult.items.filter((r) => r.hygieneGrade.has_grade);
-      const withoutGrade = searchResult.items.filter((r) => !r.hygieneGrade.has_grade);
+      const withGrade = searchResult.items.filter(
+        r => r.hygieneGrade.has_grade,
+      );
+      const withoutGrade = searchResult.items.filter(
+        r => !r.hygieneGrade.has_grade,
+      );
 
       expect(withGrade.length).toBe(2);
       expect(withoutGrade.length).toBe(1);
@@ -274,7 +290,10 @@ describe('서비스 간 연동 테스트', () => {
       } as Response);
 
       // 위생등급 조회
-      const hygieneResult = await hygieneService.findExactMatch('테스트 식당', '강남구');
+      const hygieneResult = await hygieneService.findExactMatch(
+        '테스트 식당',
+        '강남구',
+      );
       expect(hygieneResult).not.toBeNull();
       expect(hygieneResult!.hygieneGrade.grade).toBe('AAA');
 
@@ -343,7 +362,10 @@ describe('서비스 간 연동 테스트', () => {
         }),
       } as Response);
 
-      const hygieneResult = await hygieneService.findExactMatch('깨끗한 식당', '역삼동');
+      const hygieneResult = await hygieneService.findExactMatch(
+        '깨끗한 식당',
+        '역삼동',
+      );
 
       // I2630 위반 이력 조회 - 없음
       vi.mocked(fetch).mockResolvedValueOnce({
@@ -363,7 +385,8 @@ describe('서비스 간 연동 테스트', () => {
 
       // 깨끗한 식당 판별
       const isClean =
-        hygieneResult?.hygieneGrade.grade === 'AAA' && violationResult.total_count === 0;
+        hygieneResult?.hygieneGrade.grade === 'AAA' &&
+        violationResult.total_count === 0;
 
       expect(isClean).toBe(true);
     });
@@ -393,7 +416,10 @@ describe('서비스 간 연동 테스트', () => {
         }),
       } as Response);
 
-      const result1 = await hygieneService.findExactMatch('성공 식당', '역삼동');
+      const result1 = await hygieneService.findExactMatch(
+        '성공 식당',
+        '역삼동',
+      );
       expect(result1).not.toBeNull();
 
       // 두 번째 조회 실패
@@ -407,7 +433,10 @@ describe('서비스 간 연동 테스트', () => {
         }),
       } as Response);
 
-      const result2 = await hygieneService.findExactMatch('없는 식당', '역삼동');
+      const result2 = await hygieneService.findExactMatch(
+        '없는 식당',
+        '역삼동',
+      );
       expect(result2).toBeNull();
 
       // 세 번째 조회 다시 성공
@@ -432,7 +461,10 @@ describe('서비스 간 연동 테스트', () => {
         }),
       } as Response);
 
-      const result3 = await hygieneService.findExactMatch('다른 성공 식당', '역삼동');
+      const result3 = await hygieneService.findExactMatch(
+        '다른 성공 식당',
+        '역삼동',
+      );
       expect(result3).not.toBeNull();
       expect(result3!.hygieneGrade.grade).toBe('AA');
     });

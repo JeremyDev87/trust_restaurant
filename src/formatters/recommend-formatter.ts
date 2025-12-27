@@ -106,7 +106,9 @@ function formatRating(combined: number | null, reviewCount: number): string {
 /**
  * 가격대 포맷팅
  */
-function formatPriceRange(priceRange: 'low' | 'medium' | 'high' | null): string {
+function formatPriceRange(
+  priceRange: 'low' | 'medium' | 'high' | null,
+): string {
   if (!priceRange) {
     return '가격 정보 없음';
   }
@@ -149,7 +151,9 @@ function formatRecommendedRestaurant(
   if (options.showDetails !== false) {
     // 가격대 및 카테고리
     const priceText = formatPriceRange(restaurant.priceRange);
-    lines.push(`   ${ICONS.MONEY} ${priceText} | ${ICONS.FOOD} ${restaurant.category}`);
+    lines.push(
+      `   ${ICONS.MONEY} ${priceText} | ${ICONS.FOOD} ${restaurant.category}`,
+    );
 
     // 행정처분 상태
     lines.push(`   ${formatViolationStatus(restaurant.hygiene.hasViolations)}`);
@@ -170,7 +174,8 @@ function formatRecommendedRestaurant(
  */
 function formatHeader(result: RecommendRestaurantsResult): string {
   const { area, filters, recommendations } = result;
-  const priorityLabel = PRIORITY_LABELS[filters.priority as RecommendPriority] || filters.priority;
+  const priorityLabel =
+    PRIORITY_LABELS[filters.priority as RecommendPriority] || filters.priority;
 
   let headerText = `${ICONS.TROPHY} ${area}`;
 
@@ -196,7 +201,7 @@ function formatRecommendationList(
   }
 
   return recommendations
-    .map((r) => formatRecommendedRestaurant(r, options))
+    .map(r => formatRecommendedRestaurant(r, options))
     .join('\n\n');
 }
 
@@ -213,7 +218,9 @@ function formatSummary(result: RecommendRestaurantsResult): string {
   const lines: string[] = [];
 
   // 후보 수 정보
-  lines.push(`총 ${totalCandidates}개 후보 중 상위 ${recommendations.length}개 추천`);
+  lines.push(
+    `총 ${totalCandidates}개 후보 중 상위 ${recommendations.length}개 추천`,
+  );
 
   // 필터 정보
   const filterParts: string[] = [];
@@ -292,7 +299,7 @@ export function formatRecommendResultSimple(
   }
 
   const topRecommendations = result.recommendations.slice(0, 3);
-  const names = topRecommendations.map((r) => r.name).join(', ');
+  const names = topRecommendations.map(r => r.name).join(', ');
 
   return `${result.area} 추천: ${names}`;
 }
@@ -326,8 +333,7 @@ export function formatRecommendResultMarkdown(
   // 추천 목록
   for (const restaurant of result.recommendations) {
     const gradeText = restaurant.hygiene.grade || '미등록';
-    const ratingText =
-      restaurant.rating.combined?.toFixed(1) || '-';
+    const ratingText = restaurant.rating.combined?.toFixed(1) || '-';
     const reviewText =
       restaurant.rating.reviewCount > 0
         ? `(${restaurant.rating.reviewCount}개 리뷰)`
@@ -340,9 +346,7 @@ export function formatRecommendResultMarkdown(
     lines.push(`- **카테고리**: ${restaurant.category}`);
 
     if (options.showDetails !== false) {
-      lines.push(
-        `- **가격대**: ${formatPriceRange(restaurant.priceRange)}`,
-      );
+      lines.push(`- **가격대**: ${formatPriceRange(restaurant.priceRange)}`);
       lines.push(
         `- **행정처분**: ${restaurant.hygiene.hasViolations ? '이력 있음' : '없음'}`,
       );

@@ -42,7 +42,7 @@ describe('CompareFormatter', () => {
   ): CompareRestaurantsResult => ({
     status: 'complete',
     message: `${restaurants.length}개 식당 비교 완료`,
-    found: restaurants.map((r) => r.name),
+    found: restaurants.map(r => r.name),
     notFound: [],
     comparison: {
       restaurants,

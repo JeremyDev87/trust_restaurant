@@ -165,7 +165,9 @@ describe('EnhancedAreaSearchService', () => {
       expect(result.status).toBe('too_many');
       expect(result.totalCount).toBe(100);
       expect(result.suggestions).toEqual(['강남역 1번출구', '강남역 2번출구']);
-      expect(intelligenceService.getRestaurantIntelligence).not.toHaveBeenCalled();
+      expect(
+        intelligenceService.getRestaurantIntelligence,
+      ).not.toHaveBeenCalled();
     });
 
     it('should enrich restaurants with intelligence data', async () => {
@@ -261,13 +263,16 @@ describe('EnhancedAreaSearchService', () => {
         intelligenceService,
       );
 
-      const result = await service.searchArea({ area: '역삼동', minRating: 4.0 });
+      const result = await service.searchArea({
+        area: '역삼동',
+        minRating: 4.0,
+      });
 
       expect(result.totalCount).toBe(2);
       expect(result.restaurants).toHaveLength(2);
-      expect(result.restaurants.every((r) => (r.ratings?.combined ?? 0) >= 4.0)).toBe(
-        true,
-      );
+      expect(
+        result.restaurants.every(r => (r.ratings?.combined ?? 0) >= 4.0),
+      ).toBe(true);
     });
 
     it('should filter by hygiene grade', async () => {
@@ -298,7 +303,7 @@ describe('EnhancedAreaSearchService', () => {
       expect(result.restaurants).toHaveLength(2);
       expect(
         result.restaurants.every(
-          (r) => r.hygiene?.grade === 'AAA' || r.hygiene?.grade === 'AA',
+          r => r.hygiene?.grade === 'AAA' || r.hygiene?.grade === 'AA',
         ),
       ).toBe(true);
     });
@@ -322,7 +327,10 @@ describe('EnhancedAreaSearchService', () => {
         intelligenceService,
       );
 
-      const result = await service.searchArea({ area: '역삼동', sortBy: 'rating' });
+      const result = await service.searchArea({
+        area: '역삼동',
+        sortBy: 'rating',
+      });
 
       expect(result.restaurants[0].ratings?.combined).toBe(4.8);
       expect(result.restaurants[1].ratings?.combined).toBe(4.5);
@@ -348,7 +356,10 @@ describe('EnhancedAreaSearchService', () => {
         intelligenceService,
       );
 
-      const result = await service.searchArea({ area: '역삼동', sortBy: 'hygiene' });
+      const result = await service.searchArea({
+        area: '역삼동',
+        sortBy: 'hygiene',
+      });
 
       expect(result.restaurants[0].hygiene?.grade).toBe('AAA');
       expect(result.restaurants[1].hygiene?.grade).toBe('AA');

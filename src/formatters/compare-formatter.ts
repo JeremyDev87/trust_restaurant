@@ -131,7 +131,9 @@ function formatRating(score: number | null, reviewCount: number): string {
 /**
  * 가격대 포맷팅
  */
-function formatPriceRange(priceRange: 'low' | 'medium' | 'high' | null): string {
+function formatPriceRange(
+  priceRange: 'low' | 'medium' | 'high' | null,
+): string {
   if (!priceRange) {
     return '-';
   }
@@ -154,7 +156,7 @@ function createTableLine(
   midChar: string,
   rightChar: string,
 ): string {
-  const cells = columnWidths.map((w) => TABLE_CHARS.HORIZONTAL.repeat(w));
+  const cells = columnWidths.map(w => TABLE_CHARS.HORIZONTAL.repeat(w));
   return leftChar + cells.join(midChar) + rightChar;
 }
 
@@ -166,7 +168,11 @@ function createTableRow(cells: string[], columnWidths: number[]): string {
     const width = columnWidths[i];
     return ' ' + padString(cell, width - 2) + ' ';
   });
-  return TABLE_CHARS.VERTICAL + paddedCells.join(TABLE_CHARS.VERTICAL) + TABLE_CHARS.VERTICAL;
+  return (
+    TABLE_CHARS.VERTICAL +
+    paddedCells.join(TABLE_CHARS.VERTICAL) +
+    TABLE_CHARS.VERTICAL
+  );
 }
 
 /**
@@ -183,7 +189,7 @@ function formatComparisonTable(
   const allWidths = [labelWidth, ...restaurantWidths];
 
   // 헤더 생성
-  const headerCells = ['항목', ...restaurants.map((r) => r.name)];
+  const headerCells = ['항목', ...restaurants.map(r => r.name)];
   const topLine = createTableLine(
     allWidths,
     TABLE_CHARS.TOP_LEFT,
@@ -216,7 +222,9 @@ function formatComparisonTable(
     const naverRow = createTableRow(
       [
         '네이버 평점',
-        ...restaurants.map((r) => formatRating(r.rating.naver, r.rating.reviewCount)),
+        ...restaurants.map(r =>
+          formatRating(r.rating.naver, r.rating.reviewCount),
+        ),
       ],
       allWidths,
     );
@@ -226,7 +234,7 @@ function formatComparisonTable(
   // 가격대
   if (criteria.includes('price')) {
     const priceRow = createTableRow(
-      ['가격대', ...restaurants.map((r) => formatPriceRange(r.priceRange))],
+      ['가격대', ...restaurants.map(r => formatPriceRange(r.priceRange))],
       allWidths,
     );
     rows.push(priceRow);
@@ -235,7 +243,10 @@ function formatComparisonTable(
   // 행정처분
   if (criteria.includes('hygiene')) {
     const violationRow = createTableRow(
-      ['행정처분', ...restaurants.map((r) => formatViolations(r.hygiene.hasViolations))],
+      [
+        '행정처분',
+        ...restaurants.map(r => formatViolations(r.hygiene.hasViolations)),
+      ],
       allWidths,
     );
     rows.push(violationRow);
@@ -243,7 +254,7 @@ function formatComparisonTable(
 
   // 종합 점수
   const overallRow = createTableRow(
-    ['종합 점수', ...restaurants.map((r) => `${r.scores.overall}점`)],
+    ['종합 점수', ...restaurants.map(r => `${r.scores.overall}점`)],
     allWidths,
   );
   rows.push(overallRow);
@@ -272,7 +283,7 @@ function formatAnalysisSection(result: CompareRestaurantsResult): string {
 
   if (analysis.bestHygiene) {
     const restaurant = result.comparison.restaurants.find(
-      (r) => r.name === analysis.bestHygiene,
+      r => r.name === analysis.bestHygiene,
     );
     const gradeInfo = restaurant?.hygiene.grade
       ? ` (${restaurant.hygiene.grade} 등급)`
@@ -282,7 +293,7 @@ function formatAnalysisSection(result: CompareRestaurantsResult): string {
 
   if (analysis.bestRating) {
     const restaurant = result.comparison.restaurants.find(
-      (r) => r.name === analysis.bestRating,
+      r => r.name === analysis.bestRating,
     );
     const ratingInfo = restaurant?.rating.combined
       ? ` (${restaurant.rating.combined.toFixed(1)}점)`
@@ -381,7 +392,9 @@ export function formatCompareResultSimple(
     const price = PRICE_LABELS[restaurant.priceRange ?? ''] ?? '-';
 
     lines.push(`[${restaurant.name}]`);
-    lines.push(`  위생: ${grade} | 평점: ${rating} | 가격: ${price} | 종합: ${restaurant.scores.overall}점`);
+    lines.push(
+      `  위생: ${grade} | 평점: ${rating} | 가격: ${price} | 종합: ${restaurant.scores.overall}점`,
+    );
   }
 
   lines.push('');

@@ -95,7 +95,7 @@ export class CompareRestaurantsServiceImpl implements CompareRestaurantsService 
     }
 
     // 비교 대상 식당 정보 변환
-    const comparedRestaurants = foundRestaurants.map((r) =>
+    const comparedRestaurants = foundRestaurants.map(r =>
       this.toComparedRestaurant(r),
     );
 
@@ -125,7 +125,10 @@ export class CompareRestaurantsServiceImpl implements CompareRestaurantsService 
     const { restaurants, criteria } = input;
 
     // 식당 수 검증
-    if (!restaurants || restaurants.length < COMPARE_CONSTRAINTS.MIN_RESTAURANTS) {
+    if (
+      !restaurants ||
+      restaurants.length < COMPARE_CONSTRAINTS.MIN_RESTAURANTS
+    ) {
       throw new CompareValidationError(
         `최소 ${COMPARE_CONSTRAINTS.MIN_RESTAURANTS}개의 식당이 필요합니다.`,
       );
@@ -181,7 +184,7 @@ export class CompareRestaurantsServiceImpl implements CompareRestaurantsService 
   private async fetchAllRestaurants(
     restaurants: RestaurantIdentifier[],
   ): Promise<(RestaurantIntelligence | null)[]> {
-    const promises = restaurants.map((r) =>
+    const promises = restaurants.map(r =>
       this.intelligenceService
         .getRestaurantIntelligence(r.name, r.region)
         .catch(() => null),

@@ -543,11 +543,23 @@ describe('CompareRestaurantsService', () => {
 
     it('should handle tie in hygiene scores', async () => {
       const restaurant1 = createMockRestaurant('식당1', {
-        hygiene: { grade: 'AA', gradeLabel: '우수', stars: 2, hasViolations: false, violationCount: 0 },
+        hygiene: {
+          grade: 'AA',
+          gradeLabel: '우수',
+          stars: 2,
+          hasViolations: false,
+          violationCount: 0,
+        },
         scores: { hygiene: 80, popularity: 90, overall: 84 },
       });
       const restaurant2 = createMockRestaurant('식당2', {
-        hygiene: { grade: 'AA', gradeLabel: '우수', stars: 2, hasViolations: false, violationCount: 0 },
+        hygiene: {
+          grade: 'AA',
+          gradeLabel: '우수',
+          stars: 2,
+          hasViolations: false,
+          violationCount: 0,
+        },
         scores: { hygiene: 80, popularity: 85, overall: 82 },
       });
 
@@ -570,10 +582,18 @@ describe('CompareRestaurantsService', () => {
 
     it('should handle tie in ratings by review count', async () => {
       const restaurant1 = createMockRestaurant('식당1', {
-        ratings: { kakao: null, naver: { score: 4.5, reviews: 100 }, combined: 4.5 },
+        ratings: {
+          kakao: null,
+          naver: { score: 4.5, reviews: 100 },
+          combined: 4.5,
+        },
       });
       const restaurant2 = createMockRestaurant('식당2', {
-        ratings: { kakao: null, naver: { score: 4.5, reviews: 200 }, combined: 4.5 },
+        ratings: {
+          kakao: null,
+          naver: { score: 4.5, reviews: 200 },
+          combined: 4.5,
+        },
       });
 
       vi.mocked(intelligenceService.getRestaurantIntelligence)

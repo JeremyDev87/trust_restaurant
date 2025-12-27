@@ -67,9 +67,7 @@ interface CandidateRestaurant {
 /**
  * 식당 추천 서비스 구현
  */
-export class RecommendRestaurantsServiceImpl
-  implements RecommendRestaurantsService
-{
+export class RecommendRestaurantsServiceImpl implements RecommendRestaurantsService {
   constructor(
     private readonly areaSearchService: EnhancedAreaSearchService,
     private readonly intelligenceService: RestaurantIntelligenceService,
@@ -250,18 +248,44 @@ export class RecommendRestaurantsServiceImpl
     }
 
     const categoryKeywords: Record<string, string[]> = {
-      한식: ['한식', '한정식', '국밥', '찌개', '불고기', '갈비', '비빔밥', '삼겹살'],
+      한식: [
+        '한식',
+        '한정식',
+        '국밥',
+        '찌개',
+        '불고기',
+        '갈비',
+        '비빔밥',
+        '삼겹살',
+      ],
       중식: ['중식', '중국', '짜장', '짬뽕', '탕수육', '양꼬치'],
-      일식: ['일식', '일본', '초밥', '스시', '라멘', '우동', '돈까스', '사시미'],
-      양식: ['양식', '이탈리안', '파스타', '스테이크', '피자', '프렌치', '햄버거'],
+      일식: [
+        '일식',
+        '일본',
+        '초밥',
+        '스시',
+        '라멘',
+        '우동',
+        '돈까스',
+        '사시미',
+      ],
+      양식: [
+        '양식',
+        '이탈리안',
+        '파스타',
+        '스테이크',
+        '피자',
+        '프렌치',
+        '햄버거',
+      ],
       카페: ['카페', '커피', '디저트', '베이커리', '케이크'],
     };
 
     const keywords = categoryKeywords[category] || [];
 
-    return restaurants.filter((r) => {
+    return restaurants.filter(r => {
       const categoryLower = r.category.toLowerCase();
-      return keywords.some((keyword) => categoryLower.includes(keyword));
+      return keywords.some(keyword => categoryLower.includes(keyword));
     });
   }
 
@@ -276,7 +300,7 @@ export class RecommendRestaurantsServiceImpl
       return restaurants;
     }
 
-    return restaurants.filter((r) => {
+    return restaurants.filter(r => {
       // 가격 정보가 없으면 포함 (정보 없음은 필터링하지 않음)
       if (!r.priceRange) {
         return true;
@@ -298,7 +322,7 @@ export class RecommendRestaurantsServiceImpl
     const weights = PRIORITY_WEIGHTS[priority];
 
     // 병렬로 intelligence 조회
-    const intelligencePromises = restaurants.map((restaurant) =>
+    const intelligencePromises = restaurants.map(restaurant =>
       this.intelligenceService
         .getRestaurantIntelligence(restaurant.name, area)
         .catch(() => null),
@@ -478,7 +502,7 @@ export class RecommendRestaurantsServiceImpl
     const categoryLower = restaurant.category.toLowerCase();
 
     // 완전 매칭
-    const exactMatch = preferredCategories.some((pref) =>
+    const exactMatch = preferredCategories.some(pref =>
       categoryLower.includes(pref.toLowerCase()),
     );
     if (exactMatch) {
@@ -486,10 +510,10 @@ export class RecommendRestaurantsServiceImpl
     }
 
     // 부분 매칭 (카테고리 키워드 일부 포함)
-    const partialMatch = preferredCategories.some((pref) => {
+    const partialMatch = preferredCategories.some(pref => {
       const prefWords = pref.split('');
       return prefWords.some(
-        (word) => word.length >= 2 && categoryLower.includes(word),
+        word => word.length >= 2 && categoryLower.includes(word),
       );
     });
 
@@ -577,7 +601,9 @@ export class RecommendRestaurantsServiceImpl
       },
       rating: {
         combined:
-          intelligence?.ratings.combined ?? restaurant.ratings?.combined ?? null,
+          intelligence?.ratings.combined ??
+          restaurant.ratings?.combined ??
+          null,
         reviewCount: totalReviews,
       },
       priceRange: intelligence?.priceRange ?? restaurant.priceRange ?? null,
