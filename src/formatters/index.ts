@@ -16,3 +16,10 @@ export {
   convertViolationType,
   convertViolationReason,
 } from './term-converter.js';
+
+export {
+  formatCompareResult,
+  formatCompareResultSimple,
+  type CompareFormatOptions,
+  type FormattedCompareResult,
+} from './compare-formatter.js';

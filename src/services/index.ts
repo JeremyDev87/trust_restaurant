@@ -55,3 +55,10 @@ export {
   createEnhancedAreaSearchService,
   type EnhancedAreaSearchService,
 } from './enhanced-area-search.service.js';
+
+export {
+  CompareRestaurantsServiceImpl,
+  createCompareRestaurantsService,
+  CompareValidationError,
+  type CompareRestaurantsService,
+} from './compare-restaurants.service.js';
